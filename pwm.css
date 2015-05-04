@@ -1,0 +1,288 @@
+/*
+	pwm Password Manager
+	Copyright Owen Maule 2015
+	o@owen-m.com
+	https://github.com/owenmaule/pwm
+
+	License: GNU Affero General Public License v3
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+/* Layout sections */
+
+body {
+	padding: 8px;
+	color: #666666;
+	font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+	max-width: 700px;
+	margin: 0 auto;
+	background-color: HoneyDew;
+}
+
+header {
+/*	outline: 1px solid Cyan; */
+}
+
+header div.logo-mount {
+	float: right;
+	clear: right;
+	position: relative;
+	width: 0;
+	height: 0;
+	z-index: 1;
+/*	border: 1px solid Red; */
+}
+
+header img.logo {
+	position: absolute;
+	right: 0;
+}
+
+header div#header-overlay,
+div#main {
+	position: relative;
+	z-index: 2;
+}
+
+div#main {
+/*	outline: 1px solid Blue; */
+}
+
+header div#header-overlay {
+	margin-bottom: 8px;
+/*	outline: 1px solid Magenta; */
+}
+
+footer {
+	clear: both;
+}
+
+/* Alerts */
+
+div#alert {
+	float: right;
+	width: auto;
+	margin-left: 8px;
+/*	max-height: 235px;
+	overflow: scroll;
+	position: relative;
+	width: 0; */
+}
+div#alert span {
+	display: block;
+	padding: 5px;
+	margin-bottom: 3px;
+	border-radius: 5px;
+/*
+	width: auto;
+	position: relative;
+	right: 0;
+	white-space: nowrap;
+	*/
+}
+
+span.alert-error {
+	background-color: Crimson;
+}
+span.alert-denied {
+	background-color: LightCoral;
+}
+span.alert-note {
+	background-color: LightSkyBlue;
+}
+span.alert-debug {
+	background-color: #f7dc97;
+}
+
+h1, h2 {
+	color: #aaaaaa;
+	line-height: 1em;
+	margin: 0;
+}
+
+h1 {
+	text-shadow: 0 0 8px LawnGreen;
+}
+
+h1 span.first-part {
+	margin-right: -.3em;
+}
+
+nav {
+	margin-top: 5px;
+}
+a {
+	text-decoration: none;
+}
+
+a:link,
+a:visited {
+    color: DeepSkyBlue;
+}
+a:hover {
+    color: DodgerBlue;
+}
+a:active {
+    color: MediumBlue;
+}
+
+nav.pure-menu {
+	white-space: normal;
+}
+
+.pure-menu li {
+	background-color: WhiteSmoke;
+	margin-top: 4px;
+}
+
+.pure-menu li,
+.pure-menu li a {
+	border-radius: 5px;
+}
+
+/* Form layout */
+
+span.nowrap {
+	white-space: nowrap;
+}
+
+label {
+	display: inline-block;
+	vertical-align: top;
+	text-align: right;
+	padding-right: 8px;
+}
+
+label.textarea-label {
+	margin: 0;
+	text-align: left;
+}
+
+input[type=text],
+input[type=password] {
+	position: relative;
+	top: -2px;
+	margin: 0 4px 8px 0;
+}
+
+div.textinput-bar { /* includes text input, cancel out top */
+	padding-top: 2px;
+}
+
+input[type=submit] {
+	margin: 0 4px 4px 0;
+	padding: 6.5px;
+	position: relative;
+	top: -6px;
+}
+
+div.button-bar { /* buttons only, cancel out top */
+	padding-top: 5px;
+}
+
+/* Authenticator */
+
+form#auth div {
+	margin-left: 138px;
+}
+
+form#auth label {
+	width: 130px;
+}
+
+form#auth input[type=text],
+form#auth input[type=password] {
+	min-width: 217px;
+}
+
+/* Password Manager */
+
+form#selector-form {
+}
+
+input#search {
+	width: 200px;
+}
+
+input#search-button {
+}
+
+select#selector {
+	float: left;
+	width: 200px;
+	height: 320px;
+}
+
+div#selector-buttons {
+	clear: right;
+}
+
+div#selector-buttons,
+div#entry-form {
+	padding-left: 209px;
+}
+
+div#entry-form {
+/*	background-color: Yellow; */
+}
+
+div#entry-form label {
+	width: 110px;
+}
+
+div#entry-form input[type=text] {
+	min-width: 207px;
+	width: 365px;
+}
+
+div#entry-form textarea {
+	min-width: 190px;
+	margin: 0 8px 8px 0;
+	width: 483px;
+}
+
+@media only screen and (max-width:727px)
+{
+	div#entry-form {
+/*		background-color: Red; */
+		padding-right: 8px;
+	}
+
+	div#entry-form label {
+		text-align: left;
+		width: auto;
+		margin: 0;
+	}
+
+	div#entry-form input[type=text],
+	div#entry-form textarea {
+		display: block;
+		width: 100%;
+		margin-bottom: 4px;
+	}
+
+	div#entry-form textarea {
+		margin-bottom: 12px;
+	}
+}
+
+@media only screen and (max-width:457px)
+{
+	div#entry-form {
+		clear: left;
+/*		background-color: Green; */
+		padding: 8px 0;
+	}
+}

@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    Options +FollowSymlinks
+
+#    RewriteCond %{HTTPS} !=on
+#    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+	
+	RewriteRule ^auth$ index.php [L]
+	RewriteRule ^change$ index.php?auth=Change [L]
+	RewriteRule ^logout$ index.php?auth=Logout [L]
+	RewriteRule ^edit$ index.php [L]
+	RewriteRule ^new$ index.php?new=New [L]
+	RewriteRule ^([0-9]+)$ index.php?selected=$1 [L]
+</IfModule>
