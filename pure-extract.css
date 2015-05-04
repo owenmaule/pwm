@@ -1,22 +1,27 @@
 /*
-Extracts from PureCSS
-http://purecss.io/
+	Extracts from PureCSS
+	http://purecss.io/
 
-Copyright 2014 Yahoo! Inc. All rights reserved.
-Licensed under the BSD License.
-https://github.com/yahoo/pure/blob/master/LICENSE.md
+	Copyright 2014 Yahoo! Inc. All rights reserved.
+	Licensed under the BSD License.
+	https://github.com/yahoo/pure/blob/master/LICENSE.md
 
-Includes barebones used features:
-- Pure Form
-- Pure Menu
+	---
+	Stripped down for:
+	pwm Password Manager by Owen Maule
+	https://github.com/owenmaule/pwm
 
-I could have set these rules myself but I chose to use this because:
-- Component standardisation
-- Quick flexibility
-- Extendibility
+	Includes barebones used features:
+	- Pure Form
+	- Pure Menu
 
-Why I didn't just include pure-min.css:
-- Layout glitches
+	I could have set these rules myself but I chose to use this because:
+	- Component standardisation
+	- Quick flexibility
+	- Extendibility
+
+	Why I didn't just include pure-min.css:
+	- Layout glitches
 */
 
 /* Pure Form (Barebones) */
