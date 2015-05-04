@@ -85,7 +85,11 @@
 	</div>
 	<footer>
 		<p>Developed as a competency test in early May 2015<br />
-		&copy; Copyright <a href="http://owen-m.com/" target="_blank">Owen Maule</a> 2015 <a href="mailto:o@owen-m.com">o@owen-m.com</a></p>
+		&copy; Copyright <a href="http://owen-m.com/" target="_blank">Owen Maule</a> 2015 &lt;<a href="mailto:o@owen-m.com">o@owen-m.com</a>&gt;<br />
+		Latest version on <a href="https://github.com/owenmaule/pwm" target="_blank">GitHub</a>
+	</p>
+	<p class="license">This program comes with ABSOLUTELY NO WARRANTY. It is <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="nofollow" target="_blank">free software</a>, and you are welcome to modify and redistribute it
+    under certain conditions</p>
 	</footer>
 </body>
 </html>
