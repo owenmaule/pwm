@@ -37,8 +37,12 @@ try
 }
 catch ( Exception $e )
 {
-	$pwm->alert( $e->getMessage(), ALERT_ERROR );
-	# die( 'Error: ' . $e->getMessage() );
+	if( is_object( $pwm ) )
+	{
+		$pwm->alert( $e->getMessage(), ALERT_ERROR );
+	} else {
+		die( 'Error: ' . $e->getMessage() );
+	}
 }
 
 $pwm->render();
