@@ -50,3 +50,21 @@ Similar products are <a href="http://keepass.info/" rel="nofollow" target="_blan
 
 I hope you find this software useful. I have certainly enjoyed creating it.<br />
 Best wishes, Owen Maule
+
+#Project Roadmap
+This is primarily kept in the header of pwm.php - I will try to keep this README in sync with that.
+
+##To do
+	Stubbed functionality: change password, reset password
+	Encrypt entry data by login password
+	Refactor into class hierarchy: appBase <- authentication <- passwordManager
+	Missing functionality: password confirmation, password generation,
+	    password security analysis, limit failed logins
+	Back-end support: FULLTEXT, SQLlite
+
+##Template (default theme) to do
+	Front-end Javascript enhancements
+	Missing client functionality: show/hide password, copy to clipboard, open website
+	Continue searching for the owner of the image and check permission.
+	    ( I expect it's okay, it's Tux and GPL software. )
+
