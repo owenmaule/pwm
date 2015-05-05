@@ -539,8 +539,7 @@ CREATE TABLE `pwm`.`entries` (
 	
 	public function changePassword()
 	{
-		if( ! $this->loggedIn
-			&& ! $this->canResetPassword )
+		if( ! $this->loggedIn )
 		{
 			$this->alert( 'Must be logged in to change password', ALERT_DENIED );
 			return false;
@@ -569,7 +568,6 @@ CREATE TABLE `pwm`.`entries` (
 			'UPDATE ' . $this->authTable . ' SET user_password = ? WHERE user_id = ?' );
 		$query->execute( array ( $hash, $_SESSION[ 'user_id' ] ) );
 		$_SESSION[ 'login_password' ] = $password;
-		$this->loggedIn = true;
 
 		# When the data is encrypted using the password
 		# - Check there isn't multiple rows already, if so delete any extra ones
@@ -630,7 +628,7 @@ CREATE TABLE `pwm`.`entries` (
 			$passwordLength = strlen( $password );
 			if( 0 !== strncmp( $passTime, $password, $passwordLength ) )
 			{
-				$this->alert( 'passTime=' . $passTime. ' password=' . $password, ALERT_DEBUG );
+#				$this->alert( 'passTime=' . $passTime. ' password=' . $password, ALERT_DEBUG );
 				$this->alert( 'Invalid token security', ALERT_DENIED );
 				return false;
 			}
@@ -653,13 +651,19 @@ CREATE TABLE `pwm`.`entries` (
 			}
 			
 			$this->canResetPassword = true;
+			$_SESSION[ 'user' ] = $result[ 'user_email' ];
+
 			if( empty( $_POST[ 'login_password' ] ) )
 			{
 				$this->alert( 'Set your new password', ALERT_NOTE );
-				$_SESSION[ 'user' ] = $result[ 'user_email' ];
 				return false;
 			} else {
-				$this->changePassword();
+				$this->loggedIn = true;
+				$_SESSION[ 'user_id' ] = $user_id;
+				if( ! $this->changePassword() )
+				{
+					$this->alert( 'Failed to change your password', ALERT_ERROR );
+				}
 			}
 			return true;
 		}
@@ -761,6 +765,7 @@ CREATE TABLE `pwm`.`entries` (
 				$changePassword = true;
 				if( $this->changePassword() )
 				{
+					$changePassword = false;
 					$auth = '';
 				}
 				break;
