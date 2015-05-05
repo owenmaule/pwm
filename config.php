@@ -22,14 +22,17 @@
 */
 
 $config = array(
-	'dsn' => 'mysql:host=localhost;dbname=YOUR_DATABASE;charset=utf8',
-	'db_user' => 'YOUR_USERNAME',
+	'dsn' => 'mysql:host=localhost;dbname=pwm;charset=utf8',
+	'db_user' => 'pwm',
 	'db_password' => 'YOUR_PASSWORD',
-	
-	'debug_messages' => true,
+	'db_auth_table' => '`pwm`.`users`',
+	'db_pwm_table' => '`pwm`.`entries`',
+	'auto_install' => true,
+
+	'enforce_https' => false,
+	'debug_messages' => false,
 	'salt_length' => 12,
 	'hash_algo' => 'sha256',
-	'enforce_https' => false,
 
 	'limit_fails' => 10,
 	'limit_fails_timer' => 600,
