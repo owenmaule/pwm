@@ -25,15 +25,19 @@ $config = array(
 	'dsn' => 'mysql:host=localhost;dbname=pwm;charset=utf8',
 	'db_user' => 'pwm',
 	'db_password' => 'YOUR_PASSWORD',
-	'db_auth_table' => '`pwm`.`users`',
-	'db_pwm_table' => '`pwm`.`entries`',
+	'db_auth_table' => '`users`',
+	'db_pwm_table' => '`entries`',
 	'auto_install' => true,
+
+	'admin_email' => 'YOUR_EMAIL',
+	'app_location' => 'http://YOUR_SITE/pwm/',
 
 	'enforce_https' => false,
 	'debug_messages' => false,
 	'salt_length' => 12,
 	'hash_algo' => 'sha256',
 
+	'reset_token_timeout' => 3600,
 	'limit_fails' => 10,
 	'limit_fails_timer' => 600,
 );
