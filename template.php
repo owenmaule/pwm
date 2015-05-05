@@ -47,7 +47,7 @@ if( ! ( $pathUp = $content[ 'rel_path' ] ) )
 				foreach( $content[ 'alert' ] as $message => $type )
 				{
 					# Hide debug messages
-					if( $type != ALERT_DEBUG || isset( $content[ 'alert_debug' ] ) )
+					if( $type != ALERT_DEBUG || ! empty( $content[ 'alert_debug' ] ) )
 					{
 						echo '
 			<span class="alert-', $type, '">', /*ucfirst( $type ), ': ',*/ $message, '</span>';
