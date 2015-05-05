@@ -22,7 +22,6 @@
 */
 
 $pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -58,7 +57,7 @@ $pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
 			<img class="logo" src="<?php echo $pathUp; ?>tux-ninja.png" alt="Tux the penguin as a badass ninja" />
 		</div>
 		<div id="header-overlay">
-			<h1 title="Guarding your passwords">PwN <span class="first-part">Pass</span> <span>word</span> Ninja</h1>
+			<h1><span class="app-title" title="Guarding your passwords">PwN <span class="first-part">Pass</span> <span>word</span> Ninja</span></h1>
 			<h2>By <a href="http://owen-m.com/" target="_blank">Owen Maule</a></h2>
 			<nav class="pure-menu pure-menu-horizontal">
 				<ul class="pure-menu-list"><?php

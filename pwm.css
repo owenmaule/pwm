@@ -35,21 +35,6 @@ header {
 /*	outline: 1px solid Cyan; */
 }
 
-header div.logo-mount {
-	float: right;
-	clear: right;
-	position: relative;
-	width: 0;
-	height: 0;
-/*	z-index: 1; */
-/*	border: 1px solid Red; */
-}
-
-header img.logo {
-	position: absolute;
-	right: 0;
-}
-
 header div#header-overlay,
 div#main {
 	position: relative;
@@ -80,7 +65,7 @@ footer {
 div#alert {
 	float: right;
 	width: auto;
-	margin-left: 8px;
+	margin: 0 0 8px 8px;
 }
 div#alert span {
 	display: block;
@@ -90,16 +75,36 @@ div#alert span {
 }
 
 span.alert-error {
-	background-color: Crimson;
+	background-color: Tomato;
+	color: White;
+	font-weight: bold;
+	border: 1px solid Black;
 }
 span.alert-denied {
 	background-color: LightCoral;
+	color: #006666;
 }
 span.alert-note {
 	background-color: LightSkyBlue;
 }
 span.alert-debug {
 	background-color: #f7dc97;
+}
+
+header div.logo-mount {
+	float: right;
+	clear: right;
+	position: relative;
+	top: -8px;
+	width: 0;
+	height: 0;
+/*	z-index: 1; */
+/*	border: 1px solid Red; */
+}
+
+header img.logo {
+	position: absolute;
+	right: 0;
 }
 
 h1, h2 {
@@ -110,11 +115,11 @@ h1, h2 {
 
 h1 {
 	text-shadow: 0 0 8px LawnGreen;
-	cursor: crosshair;
 }
 
-h1:hover {
+h1 span.app-title:hover {
 	text-shadow: 0 0 18px Crimson;
+	cursor: crosshair;
 }
 
 h1 span.first-part {
@@ -199,20 +204,20 @@ div.button-bar { /* buttons only, cancel out top */
 
 /* Authenticator */
 
-form#auth {
+form#auth-form {
 	clear: right;
 }
 
-form#auth div.button-bar {
+form#auth-form div.button-bar {
 	margin-left: 138px;
 }
 
-form#auth label {
+form#auth-form label {
 	width: 130px;
 }
 
-form#auth input[type=text],
-form#auth input[type=password] {
+form#auth-form input[type=text],
+form#auth-form input[type=password] {
 	min-width: 217px;
 	width: 100%;
 	max-width: 360px;
@@ -299,6 +304,10 @@ form#entry-form textarea {
 
 @media only screen and (max-width:457px)
 {
+	form#auth-form div.button-bar {
+		margin-left: 0;
+	}
+
 	select#selector {
 		width: 100%;
 		height: 200px;

@@ -22,20 +22,27 @@
 
 	---
 	To do:
-	Front-end Javascript enhancements
 	Stubbed functionality: change password, reset password
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
-	Missing functionality: password confirmation, show/hide password, copy to clipboard, open website, password generation,
-		password security analysis, limit failed logins
+	Missing functionality: password confirmation, password generation, password security analysis, limit failed logins
 	Back-end support: FULLTEXT, SQLlite
 
 	Template (default theme) to do:
-	Continue searching for the owner of the image and check permission. I expect it's okay, it's Tux and GPL software.
+	Front-end Javascript enhancements
+	Missing client functionality: show/hide password, copy to clipboard, open website
+	Continue searching for the owner of the image and check permission. ( I expect it's okay, it's Tux and GPL software. )
 */
 
-define( 'BR', "<br />\n" );
+
+
+define( 'NL', "\n" );
+define( 'RN', "\r\n" );
+define( 'BR', '<br />' . NL );
+
 define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' ); # Invalid in indentifier, for use in PCRE regex
+
+define( 'TIME_FORMAT', 'l jS \of F Y h:i:s A' );
 
 define( 'ALERT_ERROR', 'error' );
 define( 'ALERT_NOTE', 'note' );
@@ -67,6 +74,7 @@ class pwm
 	public $entries = array ( );
 	public $entry = array ( );
 	private $loggedIn = false;
+	private $canResetPassword = false;
 	private $selected = 0;
 	private $authTable = '';
 	private $pwmTable = '';
@@ -134,7 +142,7 @@ CREATE TABLE `pwm`.`entries` (
 ) ENGINE = InnoDB;
 */
 
-		/* Auth table */
+		# Authentication table
 		if( true !== ( $errorMessage = $this->checkCreateTable( 'db_auth_table', '(
 `user_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `user_email` VARCHAR( 128 ) NOT NULL ,
@@ -145,7 +153,7 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$this->authTable = $this->config[ 'db_auth_table' ];
 
-		/* Password details table */
+		# Password details table
 		if( true !== ( $errorMessage = $this->checkCreateTable( 'db_pwm_table', '(
 `entry_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `user_id` INT( 11 ) UNSIGNED NOT NULL ,
@@ -275,7 +283,9 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$hash = $this->hashPassword( $salt . $password );
 		# PHP 5.4 has bin2hex()
-		return current( unpack( 'H*', $salt ) ) . $hash;
+		$hexSalt = current( unpack( 'H*', $salt ) );
+#		$this->alert( 'Add salt hex= ' . $hexSalt . ' bin= ' . $salt, ALERT_DEBUG );
+		return $hexSalt . $hash;
 	}
 	
 	public function password_verify( $password , $saltHash )
@@ -283,10 +293,63 @@ CREATE TABLE `pwm`.`entries` (
 		# PHP 5.5 has password_verify()
 		# strip salt - 2 bytes hex per byte binary
 		$hexSalt = substr( $saltHash, 0, $this->config[ 'salt_length' ] * 2 );
-#		$this->alert( 'Stripped salt ' . $hexSalt, ALERT_DEBUG );
 		# PHP 5.4 has hex2bin()
 		$salt = pack( 'H*', $hexSalt );
+#		$this->alert( 'Strip salt hex= ' . $hexSalt . ' bin= ' . $salt, ALERT_DEBUG );
 		return $this->password_hash( $password, $salt ) == $saltHash;
+	}
+	
+
+	# Hand written encryption. Avoid requiring mcrypt module
+	public function symmetricEncrypt( $data, $key )
+	{
+#		$this->alert( 'Encrypting: ' . $data, ALERT_DEBUG );
+
+		$encrypted = '';
+		if( ( $dataLength = strlen( $data ) )
+			&& ( $keyLength = strlen( $key ) ) )
+		{
+			$encryptedBinaryChars = '';
+			for( $loop = 0, $keyLoop = 0; $loop != $dataLength; ++$loop )
+			{
+				$encryptedChar = ord( $data[ $loop ] ) + ord( $key[ $keyLoop ] );
+				$encryptedBinaryChars .= chr( $encryptedChar );
+#				$this->alert( '[' . $loop . ']: ' . ord( $data[ $loop ] ) . ' [' . $keyLoop . ']: '
+#					. ord( $key[ $keyLoop ] ) . ' char: ' . $encryptedChar, ALERT_DEBUG );
+				if( ++$keyLoop == $keyLength )
+				{
+					$keyLoop = 0;
+				}
+			}
+			$encrypted = base64_encode( $encryptedBinaryChars );
+#			$this->alert( 'Encrypted: ' . $encrypted, ALERT_DEBUG );
+		}
+		return $encrypted;
+	}
+
+	public function symmetricDecrypt( $data, $key )
+	{
+#		$this->alert( 'Decrypting: ' . $data, ALERT_DEBUG );
+
+		$decrypted = '';
+		$binaryData = base64_decode( $data );
+		if( ( $dataLength = strlen( $binaryData ) )
+			&& ( $keyLength = strlen( $key ) ) )
+		{
+			for( $loop = 0, $keyLoop = 0; $loop != $dataLength; ++$loop )
+			{
+				$decryptedChar = chr( ord( $binaryData[ $loop ] ) - ord( $key[ $keyLoop ] ) );
+#				$this->alert( '[' . $loop . ']: ' . ( (int) $binaryData[ $loop ] ) . ' [' . $keyLoop . ']: '
+#					. chr( $key[ $keyLoop ] ) . ' char: ' . $decryptedChar, ALERT_DEBUG );
+				$decrypted .= $decryptedChar;
+				if( ++$keyLoop == $keyLength )
+				{
+					$keyLoop = 0;
+				}
+			}
+#			$this->alert( 'Decrypted: ' . $decrypted, ALERT_DEBUG );
+		}
+		return $decrypted;
 	}
 	
 	public function logIn()
@@ -453,11 +516,13 @@ CREATE TABLE `pwm`.`entries` (
 	
 	public function changePassword()
 	{
-		if( ! $this->loggedIn )
+		if( ! $this->loggedIn
+			&& ! $this->canResetPassword )
 		{
 			$this->alert( 'Must be logged in to change password', ALERT_DENIED );
 			return false;
 		}
+
 		if( empty( $_POST[ 'login_password' ] ) )
 		{
 			if( isset( $_POST[ 'login_password' ] ) )
@@ -466,6 +531,7 @@ CREATE TABLE `pwm`.`entries` (
 			}
 			return false;
 		} 
+
 		$password = $_POST[ 'login_password' ];
 		$lowQuality = $this->passwordQuality( $password );
 		if( $lowQuality )
@@ -473,14 +539,102 @@ CREATE TABLE `pwm`.`entries` (
 			$this->alert( 'Your password is low quality: ' . $lowQuality, ALERT_DENIED );
 			return false;
 		}
-		# Create a second row with the same email, re-encode the data, then delete the first one
-		$this->alert( 'Password change functionality not implemented yet', ALERT_NOTE );				
-		return false;
+		
+		# Simply change the password
+		$hash = $this->password_hash( $password );
+		$query = $this->database->prepare(
+			'UPDATE ' . $this->authTable . ' SET user_password = ? WHERE user_id = ?' );
+		$query->execute( array ( $hash, $_SESSION[ 'user_id' ] ) );
+		$_SESSION[ 'login_password' ] = $password;
+
+		# When the data is encrypted using the password
+		# - Check there isn't multiple rows already, if so delete any extra ones
+		# - Create a second row with the same email, re-encode the data, then delete the original row
+
+		$this->alert( 'Changed password', ALERT_NOTE );	
 		return true;
 	}
 	
 	public function resetPassword()
 	{
+		$resetTimer = 1800;
+		if( ! empty( $this->config[ 'reset_token_timeout' ] ) )
+		{	# Adjust from the default 30 mins, if over the minimum of 10 minutes
+			if( 600 < ( $resetTimerConfig = (int) $this->config[ 'reset_token_timeout' ] ) )
+			{
+				$resetTimer = $resetTimerConfig;
+				$this->alert( 'Reset timer at ' . ( $resetTimer / 60.0 ) . ' minutes', ALERT_DEBUG );
+			}
+		}
+		
+		# GET takes precedence
+		$this->resetToken = $token = ! empty( $_GET[ 'reset' ] ) ? $_GET[ 'reset' ] :
+			( ! empty( $_POST[ 'reset' ] ) ? $_POST[ 'reset' ] : '' );
+		
+		# Check if received the email
+		if( $token )
+		{
+#			$this->alert( 'Got token ' . htmlspecialchars( $token ), ALERT_DEBUG );
+			$dashPos = strpos( $token, '-' );
+			if( ! $dashPos	# first position or not found
+				|| ! ( $user_id = substr( $token, 0, $dashPos ) ) ) # Find user_id and check it's a number
+			{
+				$this->alert( 'token=' . $token, ALERT_DEBUG );
+				$this->alert( 'Invalid token format', ALERT_ERROR );
+				return false;
+			}
+
+			$passTimeToken = substr( $token, $dashPos + 1 );
+#			$this->alert( 'User=' . $user_id . ' passTimeToken=' . $passTimeToken, ALERT_DEBUG );
+
+			$query = $this->database->prepare(
+				'SELECT user_email, user_password FROM ' . $this->authTable . ' where user_id = ? ORDER BY user_id LIMIT 1' );
+			$query->execute( array ( $user_id ) );
+			$result = $query->fetch();
+			if( false == $result
+				|| empty( $result[ 'user_email' ] )
+				|| empty( $result[ 'user_password' ] ) )
+			{
+				$this->alert( 'Account not found', ALERT_DENIED );
+				return false;
+			}
+
+			$password = utf8_decode( $result[ 'user_password' ] );
+			$passTime = $this->SymmetricDecrypt( $passTimeToken, $password );
+			
+			# Validate token
+			$passwordLength = strlen( $password );
+			if( 0 !== strncmp( $passTime, $password, $passwordLength ) )
+			{
+				$this->alert( 'passTime=' . $passTime. ' password=' . $password, ALERT_DEBUG );
+				$this->alert( 'Invalid token security', ALERT_DENIED );
+				return false;
+			}
+
+			# Find token creation time
+			$hexTime = substr( $passTime, $passwordLength );
+			$timeNow = (int) time();
+			if( ! $hexTime || ( $tokenTime = hexdec( $hexTime ) ) > $timeNow )
+			{
+				$this->alert( 'Invalid token time', ALERT_DENIED );
+			}
+			$timeSince = $timeNow - $tokenTime;
+#			$this->alert( 'tokenTime=' . date( TIME_FORMAT, $tokenTime ) . BR
+#				. 'timeNow=' . date( TIME_FORMAT, $timeNow ) . BR
+#				. 'timeSince=' . number_format ( $timeSince / 60.0, 1 ) . ' minutes', ALERT_DEBUG );
+			if( $timeSince > $resetTimer )
+			{
+				$this->alert( 'Valid token has timed out. Request a new one', ALERT_DENIED );
+				return false;
+			}
+
+			$this->canResetPassword = true;
+			$this->alert( 'Set your new password', ALERT_NOTE );
+			$_SESSION[ 'user' ] = $result[ 'user_email' ];
+			return true;
+		}
+	
+		# Check for request to send the email
 		if( empty( $_POST[ 'user' ] ) )
 		{
 			$this->alert( 'Must supply email to reset password', ALERT_DENIED );
@@ -488,7 +642,7 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$user = $_POST[ 'user' ];
 		$query = $this->database->prepare(
-			'SELECT user_id FROM ' . $this->authTable . ' where user_email = ? ORDER BY user_id LIMIT 1' );
+			'SELECT user_id, user_password FROM ' . $this->authTable . ' where user_email = ? ORDER BY user_id LIMIT 1' );
 		$query->execute( array ( $user ) );
 		$result = $query->fetch();
 		if( false == $result || empty( $result[ 'user_id' ] ) )
@@ -496,11 +650,54 @@ CREATE TABLE `pwm`.`entries` (
 			$this->alert( 'Account not found', ALERT_DENIED );
 			return false;
 		}
+		
+		# Generate token and store in authTable, store time of generation in the token
+		$password = utf8_decode( $result[ 'user_password' ] );
+		$time = (int) time();
+		$rawToken = $password . dechex( $time );
+		$token = $this->SymmetricEncrypt( $rawToken, $password );
+#		$this->alert( 'Time= ' . $time . ' rawToken=' . $rawToken . ' token=' . $token, ALERT_DEBUG );
+		
+/*		# Test decrypt
+		$rawToken2 = $this->SymmetricDecrypt( $token, $password );
+		$this->alert( 'Decrypted rawToken=' . $rawToken2, ALERT_DEBUG );
+		$this->alert( 'Symmetric en/decryption is' . ( $rawToken != $rawToken2 ? ' NOT' : '' ) . ' working', ALERT_DEBUG );
+*/
+
+		# Send email
+		$adminEmail = isset( $this->config[ 'admin_email' ] ) ? $this->config[ 'admin_email' ] : '';
+		if( ! $adminEmail || empty( $this->config[ 'app_location' ] ) )
+		{
+			$this->alert( 'Not configured to send email. Contact admin ' . $adminEmail, ALERT_ERROR );
+			return false;
+		}
+
+		$resetLink = $this->config[ 'app_location' ] . 'reset/' . $result[ 'user_id' ] . '-' . $token;
+#		$this->alert( '<a href="' . $resetLink . '">Reset link</a>', ALERT_DEBUG );
+
+		$headers = 'From: ' . $adminEmail . RN
+			. 'Reply-To: ' . $adminEmail . RN
+			. 'X-Mailer: PHP/' . phpversion();
+
+		if( ! mail( $user, 'Password reset for Password Manager',
+			'Password Manager' . NL
+			. '~~~~~~~~~~~~~~~~' . NL
+			. '' . NL
+			. 'If you have not requested a password reset, please ignore this message.' . NL
+			. '' . NL
+			. 'To reset your password follow this link: ' . $resetLink . NL
+			. '' . NL			
+			. 'This reset token is valid for ' . ( $resetTimer / 60.0 ) . ' minutes from ' . date( TIME_FORMAT, $time ) . NL,
+			$headers ) )
+		{
+			$this->alert( 'Failed to send email to ' . $user, ALERT_ERROR );
+		}
+
+		$this->alert( 'Reset email sent to ' . $user, ALERT_NOTE );
+		return true;
+
 		# Check if a matching token is passed in the URL, if so, allow a new password to be entered
 		# If no token in URL, send an email with the link containing the token
-		$this->alert( 'Password reset functionality not implemented yet', ALERT_NOTE );				
-		return false;
-		return true;
 	}
 	
 	public function authentication()
@@ -556,9 +753,20 @@ CREATE TABLE `pwm`.`entries` (
 		
 		if( ! $this->loggedIn || $changePassword )
 		{
-			# Set / Change / Reset password
 			$main = '
-<form id="auth" name="auth" action="auth" method="post" class="pure-form">
+<form id="auth-form" name="auth" action="auth" method="post" class="pure-form">';
+
+			$setButton = AUTH_CHANGE;
+			if( $this->canResetPassword )
+			{
+				$changePassword = true;
+				$setButton = AUTH_RESET;
+				$main .= '
+		<input type="hidden" name="reset" value="' . $this->resetToken . '" />';
+			}
+
+			# Login / Register / Change / Reset password
+			$main .= '
 		<label for="user">E-mail address: </label><input type="text" id="user" name="user" value="' . $_SESSION[ 'user' ] . '" '
 				. ( $changePassword ? 'readonly="readonly" ' : '' ) . '/><br />
 		<label for="login-password">Password: </label><input type="password" id="login-password" name="login_password" value="" />
@@ -567,7 +775,7 @@ CREATE TABLE `pwm`.`entries` (
 			if( $changePassword )
 			{
 				$main .= '
-			<input type="submit" name="auth" value="' . AUTH_CHANGE . '" />
+			<input type="submit" name="auth" value="' . $setButton . '" />
 			<input type="submit" name="auth" value="' . AUTH_CANCEL . '" />';
 			} else {
 				$main .= '
