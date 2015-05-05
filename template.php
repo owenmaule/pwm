@@ -18,12 +18,7 @@
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
-	
-	---
-	To do:
-	Continue searching for the owner of the image and check permission. I expect it's okay, it's Tux and GPL software.
-	Make selector box wider in smallest layout
+	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.	
 */
 
 $pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
