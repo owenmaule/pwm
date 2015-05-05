@@ -25,6 +25,9 @@
 	Continue searching for the owner of the image and check permission. I expect it's okay, it's Tux and GPL software.
 	Make selector box wider in smallest layout
 */
+
+$pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -32,11 +35,11 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>PwN Password Ninja<?php echo $content[ 'title' ] ? ' - ' . $content[ 'title' ] : '' ?></title>
 <?php /*	<link rel="stylesheet" href="pure-min.css" /> */ ?>
-	<link rel="stylesheet" href="normalize.css" />
-	<link rel="stylesheet" href="pure-extract.css" />
+	<link rel="stylesheet" href="<?php echo $pathUp; ?>normalize.css" />
+	<link rel="stylesheet" href="<?php echo $pathUp; ?>pure-extract.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="stylesheet" href="pwm.css" />
-	<link rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" href="<?php echo $pathUp; ?>pwm.css" />
+	<link rel="icon" href="<?php echo $pathUp; ?>favicon.ico" />
 	<meta name="description" content="Open source Password Manager web application written in PHP by Owen Maule as a demonstration of competency for a job interview." />
 	<meta name="author" content="Owen Maule" />
 	<meta name="copyright" content="Copyright Owen Maule 2015" />
@@ -57,7 +60,7 @@
 
 		</div>
 		<div class="logo-mount">
-			<img class="logo" src="tux-ninja.png" alt="Tux the penguin as a badass ninja" />
+			<img class="logo" src="<?php echo $pathUp; ?>tux-ninja.png" alt="Tux the penguin as a badass ninja" />
 		</div>
 		<div id="header-overlay">
 			<h1 title="Guarding your passwords">PwN <span class="first-part">Pass</span> <span>word</span> Ninja</h1>
@@ -85,11 +88,14 @@
 	</div>
 	<footer>
 		<p>Developed as a competency test in early May 2015<br />
-		&copy; Copyright <a href="http://owen-m.com/" target="_blank">Owen Maule</a> 2015 &lt;<a href="mailto:o@owen-m.com">o@owen-m.com</a>&gt;<br />
+		&copy; Copyright <a href="http://owen-m.com/" target="_blank">Owen Maule</a> 2015
+		<span class="nowrap">&lt;<a href="mailto:o@owen-m.com">o@owen-m.com</a>&gt;</span><br />
 		Latest version on <a href="https://github.com/owenmaule/pwm" target="_blank">GitHub</a>
 	</p>
-	<p class="license">This program comes with ABSOLUTELY NO WARRANTY. It is <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="nofollow" target="_blank">free software</a>, and you are welcome to modify and redistribute it
-    under certain conditions</p>
+	<p class="license">This software comes with ABSOLUTELY NO WARRANTY<br />
+		It is <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="nofollow" target="_blank">free software</a>, and you are welcome to modify and redistribute it
+		under certain conditions
+	</p>
 	</footer>
 </body>
 </html>
