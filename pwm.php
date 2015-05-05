@@ -22,7 +22,6 @@
 
 	---
 	To do:
-	Stubbed functionality: change password, reset password
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
 	Missing functionality: password confirmation, password generation, password security analysis, limit failed logins
@@ -33,8 +32,6 @@
 	Missing client functionality: show/hide password, copy to clipboard, open website
 	Continue searching for the owner of the image and check permission. ( I expect it's okay, it's Tux and GPL software. )
 */
-
-
 
 define( 'NL', "\n" );
 define( 'RN', "\r\n" );
@@ -69,6 +66,7 @@ class pwm
 		'menu' => array ( ),
 		'alert' => array ( ), #'extra1' => ALERT_DEBUG, 'extra2' => ALERT_DEBUG, 'extra3' => ALERT_DEBUG, 'extra4' => ALERT_DEBUG, 'extra5' => ALERT_DEBUG, 'extra6' => ALERT_DEBUG ),
 		'main' => '<p>An error has occurred.</p>',
+		'rel_path' => '',
 	);
 	public $theme = 'template.php';
 	public $entries = array ( );
@@ -111,6 +109,8 @@ class pwm
 		{
 			throw new Exception ( 'Failed to open data store' . BR . $e->getMessage() );
 		}
+
+		$this->relativeLocation();
 
 		if( true !== ( $errorMessage = $this->install() ) )
 		{
@@ -169,6 +169,29 @@ CREATE TABLE `pwm`.`entries` (
 		$this->pwmTable = $this->config[ 'db_pwm_table' ];
 
 		return true;
+	}
+
+	public function relativeLocation()
+	{
+		$found = false;
+		if( ! empty( $this->config[ 'app_location' ] ) )
+		{
+			$appLocation = $this->config[ 'app_location' ];
+			$urlParts = parse_url( $appLocation );
+			if( ! empty( $urlParts[ 'path' ] ) )
+			{
+				$this->content[ 'rel_path' ] = $urlParts[ 'path' ];
+				$found = true;
+			}
+		}
+		if( ! $found )
+		{
+			# Try an alternative method, maybe using path_up? Dodgy but could be okayish
+			$pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
+
+			$this->alert( 'Configuration error: app_location', ALERT_ERROR );
+		}
+		return $found;
 	}
 	
 	public function tableExists( $tableName )
@@ -265,7 +288,7 @@ CREATE TABLE `pwm`.`entries` (
 		# PHP 5.4 has bin2hex()
 		$iv = mcrypt_create_iv( $this->config[ 'salt_length' ], MCRYPT_DEV_RANDOM );
 		$hexSalt = current( unpack( 'H*', $iv ) );
-		$this->alert( 'Generated salt ' . $hexSalt . ' (' . strlen( $hexSalt ) . ')', ALERT_DEBUG );
+#		$this->alert( 'Generated salt ' . $hexSalt . ' (' . strlen( $hexSalt ) . ')', ALERT_DEBUG );
 		return $iv;
 	}
 	
@@ -530,7 +553,7 @@ CREATE TABLE `pwm`.`entries` (
 				$this->alert( 'Must supply a replacement password', ALERT_DENIED );
 			}
 			return false;
-		} 
+		}
 
 		$password = $_POST[ 'login_password' ];
 		$lowQuality = $this->passwordQuality( $password );
@@ -546,6 +569,7 @@ CREATE TABLE `pwm`.`entries` (
 			'UPDATE ' . $this->authTable . ' SET user_password = ? WHERE user_id = ?' );
 		$query->execute( array ( $hash, $_SESSION[ 'user_id' ] ) );
 		$_SESSION[ 'login_password' ] = $password;
+		$this->loggedIn = true;
 
 		# When the data is encrypted using the password
 		# - Check there isn't multiple rows already, if so delete any extra ones
@@ -627,10 +651,16 @@ CREATE TABLE `pwm`.`entries` (
 				$this->alert( 'Valid token has timed out. Request a new one', ALERT_DENIED );
 				return false;
 			}
-
+			
 			$this->canResetPassword = true;
-			$this->alert( 'Set your new password', ALERT_NOTE );
-			$_SESSION[ 'user' ] = $result[ 'user_email' ];
+			if( empty( $_POST[ 'login_password' ] ) )
+			{
+				$this->alert( 'Set your new password', ALERT_NOTE );
+				$_SESSION[ 'user' ] = $result[ 'user_email' ];
+				return false;
+			} else {
+				$this->changePassword();
+			}
 			return true;
 		}
 	
@@ -754,7 +784,7 @@ CREATE TABLE `pwm`.`entries` (
 		if( ! $this->loggedIn || $changePassword )
 		{
 			$main = '
-<form id="auth-form" name="auth" action="auth" method="post" class="pure-form">';
+<form id="auth-form" name="auth" action="' . $this->content[ 'rel_path' ] . 'auth" method="post" class="pure-form">';
 
 			$setButton = AUTH_CHANGE;
 			if( $this->canResetPassword )
@@ -1036,7 +1066,7 @@ CREATE TABLE `pwm`.`entries` (
 		$_SESSION[ 'selected' ] = $this->selected;
 
 		$main = 
-'		<form id="search-form" action="search" method="post" class="pure-form">
+'		<form id="search-form" action="' . $this->content[ 'rel_path' ] . 'search" method="post" class="pure-form">
 			<div class="textinput-bar">
 				<input type="text" id="search" name="search" value="' . htmlspecialchars( $search ) . '" placeholder="Search" />
 				<span class="nowrap">
@@ -1045,7 +1075,7 @@ CREATE TABLE `pwm`.`entries` (
 				</span>
 			</div>
 		</form>
-		<form id="selector-form" action="select" method="post" class="pure-form">
+		<form id="selector-form" action="' . $this->content[ 'rel_path' ] . 'select" method="post" class="pure-form">
 			<select id="selector" name="selected" size="5">
 ';
 
@@ -1075,7 +1105,7 @@ CREATE TABLE `pwm`.`entries` (
 				<input type="submit"' . ( ! (int) $this->selected ? ' class="hidden"' : '' )  . ' name="new" value="New" />
 			</div>
 		</form>
-		<form id="entry-form" action="edit" method="post" class="pure-form">
+		<form id="entry-form" action="' . $this->content[ 'rel_path' ] . 'edit" method="post" class="pure-form">
 			<input type="hidden" name="entry_id" value="' . $this->selected . '" />
 			<label for="label">Label: </label><input type="text" id="label" name="label" value="' . $this->entry[ 'label' ] . '" />
 			<label for="username">Username: </label><input type="text" id="username" name="username" value="' . $this->entry[ 'username' ] . '" />

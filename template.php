@@ -21,7 +21,10 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.	
 */
 
-$pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
+if( ! ( $pathUp = $content[ 'rel_path' ] ) )
+{
+	$pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
+}
 ?>
 <!DOCTYPE html>
 <html>
