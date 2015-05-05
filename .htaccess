@@ -8,6 +8,11 @@
 	RewriteRule ^auth$ index.php [L]
 	RewriteRule ^change$ index.php?auth=Change [L]
 	RewriteRule ^logout$ index.php?auth=Logout [L]
+
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^reset/(.+)$ index.php?path_up=1&auth=Reset&reset=$1 [L]
+
 	RewriteRule ^edit$ index.php [L]
 	RewriteRule ^new$ index.php?new=New [L]
 	RewriteRule ^select$ index.php [L]
@@ -21,4 +26,9 @@
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^entry/(.+)$ index.php?path_up=1&selected=$1 [L]
+
+	# To do: Select by label
+#	RewriteCond %{REQUEST_FILENAME} !-f
+#	RewriteCond %{REQUEST_FILENAME} !-d
+#	RewriteRule ^label/(.+)$ index.php?path_up=1&label=$1 [L]
 </IfModule>
