@@ -41,7 +41,7 @@ header div.logo-mount {
 	position: relative;
 	width: 0;
 	height: 0;
-	z-index: 1;
+/*	z-index: 1; */
 /*	border: 1px solid Red; */
 }
 
@@ -53,16 +53,21 @@ header img.logo {
 header div#header-overlay,
 div#main {
 	position: relative;
-	z-index: 2;
-}
-
-div#main {
-/*	outline: 1px solid Blue; */
+/*	z-index: 2; */
 }
 
 header div#header-overlay {
 	margin-bottom: 8px;
 /*	outline: 1px solid Magenta; */
+}
+
+nav {
+	margin-top: 5px;
+}
+
+div#main {
+	margin-bottom: 16px;
+/*	outline: 1px solid Blue; */
 }
 
 footer {
@@ -76,22 +81,12 @@ div#alert {
 	float: right;
 	width: auto;
 	margin-left: 8px;
-/*	max-height: 235px;
-	overflow: scroll;
-	position: relative;
-	width: 0; */
 }
 div#alert span {
 	display: block;
 	padding: 5px;
 	margin-bottom: 3px;
 	border-radius: 5px;
-/*
-	width: auto;
-	position: relative;
-	right: 0;
-	white-space: nowrap;
-	*/
 }
 
 span.alert-error {
@@ -115,15 +110,17 @@ h1, h2 {
 
 h1 {
 	text-shadow: 0 0 8px LawnGreen;
+	cursor: crosshair;
+}
+
+h1:hover {
+	text-shadow: 0 0 18px Crimson;
 }
 
 h1 span.first-part {
 	margin-right: -.3em;
 }
 
-nav {
-	margin-top: 5px;
-}
 a {
 	text-decoration: none;
 }
@@ -146,6 +143,7 @@ nav.pure-menu {
 .pure-menu li {
 	background-color: WhiteSmoke;
 	margin-top: 4px;
+	height: 42px;
 }
 
 .pure-menu li,
@@ -153,11 +151,17 @@ nav.pure-menu {
 	border-radius: 5px;
 }
 
-/* Form layout */
+/* Generic */
 
-span.nowrap {
+.nowrap {
 	white-space: nowrap;
 }
+
+.hidden {
+	visibility: hidden;
+}
+
+/* Form layout */
 
 label {
 	display: inline-block;
@@ -195,7 +199,11 @@ div.button-bar { /* buttons only, cancel out top */
 
 /* Authenticator */
 
-form#auth div {
+form#auth {
+	clear: right;
+}
+
+form#auth div.button-bar {
 	margin-left: 138px;
 }
 
@@ -206,11 +214,17 @@ form#auth label {
 form#auth input[type=text],
 form#auth input[type=password] {
 	min-width: 217px;
+	width: 100%;
+	max-width: 360px;
+	margin-right: 160px;
 }
 
 /* Password Manager */
 
-form#selector-form {
+form#search-form,
+form#selector-form,
+form#entry-form {
+	margin-bottom: 0;
 }
 
 input#search {
@@ -223,7 +237,7 @@ input#search-button {
 select#selector {
 	float: left;
 	width: 200px;
-	height: 320px;
+	height: 426px;
 }
 
 div#selector-buttons {
@@ -231,24 +245,24 @@ div#selector-buttons {
 }
 
 div#selector-buttons,
-div#entry-form {
+form#entry-form {
 	padding-left: 209px;
 }
 
-div#entry-form {
+form#entry-form {
 /*	background-color: Yellow; */
 }
 
-div#entry-form label {
+form#entry-form label {
 	width: 110px;
 }
 
-div#entry-form input[type=text] {
-	min-width: 207px;
+form#entry-form input[type=text] {
+	min-width: 200px;
 	width: 365px;
 }
 
-div#entry-form textarea {
+form#entry-form textarea {
 	min-width: 190px;
 	margin: 0 8px 8px 0;
 	width: 483px;
@@ -256,34 +270,50 @@ div#entry-form textarea {
 
 @media only screen and (max-width:727px)
 {
-	div#entry-form {
+	select#selector {
+		height: 518px;
+	}
+
+	form#entry-form {
 /*		background-color: Red; */
 		padding-right: 8px;
 	}
 
-	div#entry-form label {
+	form#entry-form label {
 		text-align: left;
 		width: auto;
 		margin: 0;
 	}
 
-	div#entry-form input[type=text],
-	div#entry-form textarea {
+	form#entry-form input[type=text],
+	form#entry-form textarea {
 		display: block;
 		width: 100%;
 		margin-bottom: 4px;
 	}
 
-	div#entry-form textarea {
+	form#entry-form textarea {
 		margin-bottom: 12px;
 	}
 }
 
 @media only screen and (max-width:457px)
 {
-	div#entry-form {
+	select#selector {
+		width: 100%;
+		height: 200px;
+		margin-bottom: 8px;
+	}
+	
+	div#selector-buttons {
+		clear: left;
+		padding-left: 0;
+		margin-bottom: -4px;
+	}
+
+	form#entry-form {
 		clear: left;
 /*		background-color: Green; */
-		padding: 8px 0;
+		padding: 0;
 	}
 }
