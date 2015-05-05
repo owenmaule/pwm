@@ -22,20 +22,20 @@
 
 	---
 	To do:
-	User documentation
 	Front-end Javascript enhancements
 	Stubbed functionality: change password, reset password
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
-	Missing functionality: password confirmation, copy to clipboard, open website, password generation, password security analysis, limit failed logins
+	Missing functionality: password confirmation, show/hide password, copy to clipboard, open website, password generation,
+		password security analysis, limit failed logins
 	Back-end support: FULLTEXT, SQLlite
-	
+
 	Template (default theme) to do:
 	Continue searching for the owner of the image and check permission. I expect it's okay, it's Tux and GPL software.
 */
 
 define( 'BR', "<br />\n" );
-define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' ); # PCRE
+define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' ); # Invalid in indentifier, for use in PCRE regex
 
 define( 'ALERT_ERROR', 'error' );
 define( 'ALERT_NOTE', 'note' );
