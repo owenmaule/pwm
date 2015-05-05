@@ -10,5 +10,15 @@
 	RewriteRule ^logout$ index.php?auth=Logout [L]
 	RewriteRule ^edit$ index.php [L]
 	RewriteRule ^new$ index.php?new=New [L]
+	RewriteRule ^select$ index.php [L]
+	RewriteRule ^search$ index.php [L]
 	RewriteRule ^([0-9]+)$ index.php?selected=$1 [L]
+
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^search/(.+)$ index.php?path_up=1&search=$1 [L]
+
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^entry/(.+)$ index.php?path_up=1&selected=$1 [L]
 </IfModule>
