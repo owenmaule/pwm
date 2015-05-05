@@ -23,14 +23,15 @@
 	---
 	To do:
 	User documentation
+	Front-end Javascript enhancements
 	Stubbed functionality: change password, reset password
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
-	Missing functionality: password confirmation, copy to clipboard, open website, password generation, password security analysis
-	Front-end Javascript enhancements
-	Missing functionality: limit failed logins
-	FULLTEXT support
-	SQLlite support
+	Missing functionality: password confirmation, copy to clipboard, open website, password generation, password security analysis, limit failed logins
+	Back-end support: FULLTEXT, SQLlite
+	
+	Template (default theme) to do:
+	Continue searching for the owner of the image and check permission. I expect it's okay, it's Tux and GPL software.
 */
 
 define( 'BR', "<br />\n" );
@@ -796,6 +797,25 @@ CREATE TABLE `pwm`.`entries` (
 		$this->loadEntries( $search );
 #		$this->alert( 'Entries: ' . var_export( $this->entries, true ), ALERT_DEBUG );
 
+		# Check selected is in list
+		if( $this->selected )
+		{
+			$foundSelected = false;
+			foreach( $this->entries as $entry )
+			{
+				if( $this->selected == $entry[ 'entry_id' ] )
+				{
+					$foundSelected = true;
+					break;
+				}
+			}
+			if( ! $foundSelected )
+			{
+				$this->alert( 'Selected not in search results', ALERT_DEBUG );
+				$this->selected = 0;
+			}
+		}
+
 		$newEntry = isset( $_POST[ 'new' ] ) || isset( $_GET[ 'new' ] ) || ! $this->selected;
 
 		$this->alert( 'Search: ' . htmlspecialchars( $search ) . ' Selected: ' . (int) $this->selected, ALERT_DEBUG );
@@ -818,10 +838,10 @@ CREATE TABLE `pwm`.`entries` (
 			</div>
 		</form>
 		<form id="selector-form" action="select" method="post" class="pure-form">
-			<select id="selector" name="selected" size="10">
+			<select id="selector" name="selected" size="5">
 ';
 
-		foreach( $this->entries as $index => $entry )
+		foreach( $this->entries as $entry )
 		{
 #			$this->alert( 'Entry: ' . $index . ' => ' . var_export( $entry, true ), ALERT_DEBUG );
 			
