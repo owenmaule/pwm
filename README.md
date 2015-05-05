@@ -1,4 +1,4 @@
-# pwm Password manager
+# pwm Password Manager
 also known as: PwN Password Ninja
 
 © Copyright Owen Maule 2015<br />
@@ -20,8 +20,8 @@ Similar products are <a href="http://keepass.info/">KeePass</a> and <a href="htt
   'dsn' => 'mysql:host=localhost;dbname=pwm;charset=utf8',
   'db_user' => 'pwm',
   'db_password' => 'YOUR_PASSWORD',
-  'db_auth_table' => '`pwm`.`users`',
-  'db_pwm_table' => '`pwm`.`entries`',
+  'db_auth_table' => '\`pwm\`.\`users\`',
+  'db_pwm_table' => '\`pwm\`.\`entries\`',
 </code></pre>
   I suggest you keep the charset=utf8 on the DSN as this can avoid some quirks that SQL Injection exploits take advantage of.
 4. Open the web application within your browser, by navigating to the path where you have copied the files.
