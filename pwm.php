@@ -22,14 +22,15 @@
 
 	---
 	To do:
-	Stubbed functionality: search
-	Missing functionality: installation
 	User documentation
 	Stubbed functionality: change password, reset password
+	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
 	Missing functionality: password confirmation, copy to clipboard, open website, password generation, password security analysis
 	Front-end Javascript enhancements
 	Missing functionality: limit failed logins
+	FULLTEXT support
+	SQLlite support
 */
 
 define( 'BR', "<br />\n" );
@@ -586,11 +587,20 @@ CREATE TABLE `pwm`.`entries` (
 	
 	/* Password manager */
 	
-	public function loadEntries()
+	public function loadEntries( $search = '' )
 	{
+		# To do: InnoDB fulltext index ( Requires MySQL 5.6+ )
+		$queryParams = array ( 'user_id' => $_SESSION[ 'user_id' ] );
+		$searchQuery = '';
+		if( $search )
+		{
+			$searchQuery = ' AND ( label LIKE :search OR username LIKE :search OR password LIKE :search OR url LIKE :search OR notes LIKE :search )';
+			$queryParams[ 'search' ] = '%' . $search . '%';
+		}
+		
 		$query = $this->database->prepare(
-			'SELECT entry_id, label FROM ' . $this->pwmTable . ' WHERE user_id = ? ORDER BY label' );
-		$query->execute( array ( $_SESSION[ 'user_id' ] ) );
+			'SELECT entry_id, label FROM ' . $this->pwmTable . ' WHERE user_id = :user_id' . $searchQuery . ' ORDER BY label' );
+		$query->execute( $queryParams );
 		$result = $query->fetchAll();
 		if( false != $result )
 		{
@@ -774,17 +784,16 @@ CREATE TABLE `pwm`.`entries` (
 
 		$this->editAction();
 
-		if( isset( $_POST[ 'reset' ] ) )
+		$search = '';
+		if( ! isset( $_POST[ 'reset' ] ) )
 		{
-			$_SESSION[ 'search' ] = $search = '';
-		} else {
-			$_SESSION[ 'search' ] = $search =
-				isset( $_POST[ 'search' ] ) ? $_POST[ 'search' ] :
+			$search = isset( $_POST[ 'search' ] ) ? $_POST[ 'search' ] :
 				( isset( $_GET[ 'search' ] ) ? $_GET[ 'search' ] :
 				( isset( $_SESSION[ 'search' ] ) ? $_SESSION[ 'search' ] : '' ) );
 		}
+		$_SESSION[ 'search' ] = $search;
 
-		$this->loadEntries();
+		$this->loadEntries( $search );
 #		$this->alert( 'Entries: ' . var_export( $this->entries, true ), ALERT_DEBUG );
 
 		$newEntry = isset( $_POST[ 'new' ] ) || isset( $_GET[ 'new' ] ) || ! $this->selected;
