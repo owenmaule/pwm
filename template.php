@@ -21,9 +21,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.	
 */
 
-if( ! ( $pathUp = $content[ 'rel_path' ] ) )
+if( ! ( $path = $content[ 'rel_path' ] ) )
 {
-	$pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
+	$path = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
 }
 ?>
 <!DOCTYPE html>
@@ -32,11 +32,13 @@ if( ! ( $pathUp = $content[ 'rel_path' ] ) )
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>PwN Password Ninja<?php echo $content[ 'title' ] ? ' - ' . $content[ 'title' ] : '' ?></title>
 <?php /*	<link rel="stylesheet" href="pure-min.css" /> */ ?>
-	<link rel="stylesheet" href="<?php echo $pathUp; ?>normalize.css" />
-	<link rel="stylesheet" href="<?php echo $pathUp; ?>pure-extract.css" />
+	<link rel="stylesheet" href="<?php echo $path; ?>normalize.css" />
+	<link rel="stylesheet" href="<?php echo $path; ?>pure-extract.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="stylesheet" href="<?php echo $pathUp; ?>pwm.css" />
-	<link rel="icon" href="<?php echo $pathUp; ?>favicon.ico" />
+	<link rel="stylesheet" href="<?php echo $path; ?>pwm.css" />
+	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="pwm.js"></script>
+	<link rel="icon" href="<?php echo $path; ?>favicon.ico" />
 	<meta name="description" content="Open source Password Manager web application written in PHP by Owen Maule as a demonstration of competency for a job interview." />
 	<meta name="author" content="Owen Maule" />
 	<meta name="copyright" content="Copyright Owen Maule 2015" />
@@ -57,10 +59,10 @@ if( ! ( $pathUp = $content[ 'rel_path' ] ) )
 
 		</div>
 		<div class="logo-mount">
-			<img class="logo" src="<?php echo $pathUp; ?>tux-ninja.png" alt="Tux the penguin as a badass ninja" />
+			<img class="logo" src="<?php echo $path; ?>tux-ninja.png" alt="Tux the penguin as a badass ninja" />
 		</div>
 		<div id="header-overlay">
-			<h1><a href="<?php echo $pathUp; ?>"><span class="app-title" title="Guarding your passwords">PwN <span class="first-part">Pass</span> <span>word</span> Ninja</span></a></h1>
+			<h1><a href="<?php echo $path; ?>"><span class="app-title" title="Guarding your passwords">PwN <span class="first-part">Pass</span> <span>word</span> Ninja</span></a></h1>
 			<h2>By <a href="http://owen-m.com/" target="_blank">Owen Maule</a></h2>
 			<nav class="pure-menu pure-menu-horizontal">
 				<ul class="pure-menu-list"><?php
