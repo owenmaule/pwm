@@ -29,8 +29,20 @@ Similar products are <a href="http://keepass.info/" rel="nofollow" target="_blan
 	'app_location' => 'http://YOUR_DOMAIN.TLD/PATH_TO_PWM/',
 </code></pre>
 5. Open the web application within your browser, by navigating to the path where you have copied the files.
-6. If there are any issues to resolve, you should be guided by the error messages displayed. Please try to solve this yourself by searching online or asking a friend or colleague, however if you are really stuck you may email me at o@owen-m.com and I will try to offer timely support (no promises).
-7. If you have HTTPS support, first test that it's working by using the application with https:// in the URL. If that's working, you can enable 'enforce_https' in config.php which will give you much needed over-the-wire security for your users' precious password data (feature not yet fully tested). You can also achieve this by uncommenting the lines in .htaccess
+6. If there are any issues to resolve, you should be guided by the error messages displayed. A lot of additional information is given by enabling 'debug_messages' in config.php, these are mostly useful to someone who understands PHP, but can be extremely helpful in investigating any problems with the install or functioning of the software.
+<pre><code>
+	'debug_messages' => true,
+</code></pre>
+It is possible to route the debug messages to the browser console, with a special value of 'debug_messages'. Don't forget to disable this again when you finish debugging.
+<pre><code>
+	'debug_messages' => 'console',
+</code></pre>
+Please try to solve issues yourself by searching online or asking a friend or colleague, however if you are really stuck you may email me at o@owen-m.com and I will try to offer timely support (no promises).
+7. If you have HTTPS support, <b>first test that it's working by using the application with https:// in the URL</b>. If that's working, you can enable 'enforce_https' in config.php which will give you much needed over-the-wire security for your users' precious password data.
+<pre><code>
+	'enforce_https' => true,
+</code></pre>
+You can also achieve or reinforce this by uncommenting the lines in .htaccess
 <pre><code>
 	RewriteCond %{HTTPS} !=on
 	RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
