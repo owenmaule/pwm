@@ -25,12 +25,14 @@
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
 	Missing functionality: password confirmation, password generation,
-		password security analysis, limit failed logins
+		password security analysis, limit failed logins, change email address,
+		import/export, browser integration ( plugin to auto-capture credentials )
 	Back-end support: FULLTEXT, SQLlite
 
-	Template (default theme) to do:
+	Template ( default theme ) to do:
 	Front-end Javascript enhancements
 	Missing client functionality: show/hide password, copy to clipboard, open website
+	CSS improvements ( see pwm.css )
 	Continue searching for the owner of the image and check permission.
 		( I expect it's okay, it's Tux and GPL software. )
 */
@@ -584,6 +586,7 @@ CREATE TABLE `pwm`.`entries` (
 			{
 				$this->alert( 'Must supply a replacement password', ALERT_DENY );
 			}
+			$this->alert( 'Choose a new password', ALERT_NOTE );	
 			return false;
 		}
 
