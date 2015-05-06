@@ -88,13 +88,13 @@ span.alert-denied {
 	background-color: LightCoral;
 	color: #006666;
 }
-span.alert-note {
+span.alert-notice {
 	background-color: LightSkyBlue;
 }
 span.alert-debug {
 	background-color: #f7dc97;
 }
-span.alert-warn {
+span.alert-warning {
 	background-color: Gold;
 }
 
@@ -272,7 +272,7 @@ form#selector-form {
 select#selector {
 	float: left;
 	width: 200px;
-	height: 420px;
+	height: 426px;
 }
 
 div#selector-buttons {
@@ -292,7 +292,8 @@ form#entry-form label {
 	width: 110px;
 }
 
-form#entry-form input[type=text] {
+form#entry-form input[type=text],
+form#entry-form input[type=password] {
 	min-width: 200px;
 	width: 365px;
 	z-index: 1;
@@ -315,7 +316,7 @@ form#entry-form textarea {
 	}
 
 	select#selector {
-		height: 510px;
+		height: 518px;
 	}
 
 	form#entry-form {
@@ -329,6 +330,7 @@ form#entry-form textarea {
 	}
 
 	form#entry-form input[type=text],
+	form#entry-form input[type=password],
 	form#entry-form textarea {
 		display: block;
 		width: 100%;
