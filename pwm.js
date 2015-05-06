@@ -42,6 +42,9 @@ $( function() {
 		location.href = appLocation + 'entry/' + $( this ).val();
 	} );
 	$( "#select-entry" ).hide();
+	
+	// Enable the extra buttons
+	$( "body" ).addClass( "js-enable" );
 
 	// ZeroClipboard
 	if( enableClipboard )
