@@ -96,5 +96,9 @@ if( ! ( $path = $content[ 'rel_path' ] ) )
 		under certain conditions
 	</p>
 	</footer>
+
+	<script type="text/javascript">
+		var debugToConsole = <?php echo ( 'console' == $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>;
+	</script>
 </body>
 </html>
