@@ -24,25 +24,28 @@
 	Initially developed on PHP version: 5.3.3-7+squeeze
 */
 
-try
-{
-	require_once 'pwm.php';
-
-	$pwm = new pwm();
-	
-	if( $pwm->authentication() )
+	try
 	{
-		$pwm->passwordManager();
-	}
-}
-catch ( Exception $e )
-{
-	if( is_object( $pwm ) )
-	{
-		$pwm->alert( $e->getMessage(), ALERT_ERROR );
-	} else {
-		die( 'Error: ' . $e->getMessage() );
-	}
-}
+		require_once 'pwm.php';
+		require_once 'error_handling.php';
 
-$pwm->render();
+		$pwm = new pwm();
+		
+#		$pwm->testAlerts();
+		
+		if( $pwm->authentication() )
+		{
+			$pwm->passwordManager();
+		}
+	}
+	catch ( Exception $e )
+	{
+		if( is_object( $pwm ) )
+		{
+			$pwm->alert( $e->getMessage(), ALERT_ERROR );
+		} else {
+			die( 'Error: ' . $e->getMessage() );
+		}
+	}
+
+	$pwm->render();
