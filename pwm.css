@@ -37,8 +37,6 @@ header {
 
 header div#header-overlay,
 div#main {
-/*	position: relative;
-	z-index: 2; */
 }
 
 header div#header-overlay {
@@ -49,7 +47,7 @@ header div#header-overlay {
 nav.pure-menu {
 	width: auto;
 	position: relative;
-	z-index: 2;
+	z-index: 1;
 	margin-top: 5px;
 	white-space: normal;
 /*	background-color: Green; */
@@ -70,7 +68,7 @@ footer {
 div#alert {
 	float: right;
 	position: relative;
-	z-index: 3;
+	z-index: 4;
 	margin: 0 0 8px 8px;
 }
 div#alert span {
@@ -110,11 +108,12 @@ header div.logo-mount {
 header img.logo {
 	position: absolute;
 	right: 0;
-/*	z-index: 0; */
+	z-index: 1;
 }
 
 header img.logo:hover {
-	z-index: 1;
+	opacity: .9;
+	z-index: 2;
 }
 
 h1, h2 {
@@ -249,7 +248,10 @@ form#entry-form {
 form#search-form {
 	display: inline-block;
 	position: relative;
-	z-index: 2;
+	z-index: 3;
+}
+
+form#search-form input {
 }
 
 form#search-form span.nowrap {
@@ -262,6 +264,9 @@ input#search {
 }
 
 input#search-button {
+}
+
+form#selector-form {
 }
 
 select#selector {
@@ -290,6 +295,7 @@ form#entry-form label {
 form#entry-form input[type=text] {
 	min-width: 200px;
 	width: 365px;
+	z-index: 1;
 }
 
 form#entry-form textarea {
