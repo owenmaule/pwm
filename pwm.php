@@ -117,7 +117,7 @@ class pwm
 			throw new Exception ( 'Failed to open data store' . BR . $e->getMessage() );
 		}
 
-		$this->relativeLocation();
+		$this->setAppLocation();
 
 		if( true !== ( $errorMessage = $this->install() ) )
 		{
@@ -178,12 +178,13 @@ CREATE TABLE `pwm`.`entries` (
 		return true;
 	}
 
-	public function relativeLocation()
+	public function setAppLocation()
 	{
 		$found = false;
 		if( ! empty( $this->config[ 'app_location' ] ) )
 		{
 			$appLocation = $this->config[ 'app_location' ];
+			$this->content[ 'abs_path' ] = $appLocation;
 			$urlParts = parse_url( $appLocation );
 			if( ! empty( $urlParts[ 'path' ] ) )
 			{
@@ -193,10 +194,12 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		if( ! $found )
 		{
-			# Try an alternative method, maybe using path_up? Dodgy but could be okayish
+			# Try an alternative method, maybe using path_up? Dodgy but could be okayish?
 			$pathUp = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
+#			$this->alert( 'Configuration error: app_location', ALERT_ERROR );
 
-			$this->alert( 'Configuration error: app_location', ALERT_ERROR );
+			# For now make it mandatory
+			throw new Exception( 'Configuration error: app_location' );
 		}
 		return $found;
 	}
@@ -983,7 +986,7 @@ CREATE TABLE `pwm`.`entries` (
 			$query->execute( array ( $_SESSION[ 'user_id' ], $entry[ 'label' ], $entry[ 'username' ],
 				$entry[ 'password' ], $entry[ 'url' ], $entry[ 'notes' ] ) );
 			$_SESSION[ 'selected' ] = $this->selected = $this->database->lastInsertId();
-			$this->alert( 'Created entry: ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
+			$this->alert( 'Created ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
 		} else {
 			$entry_id = $entry[ 'entry_id' ];
 			if( ! $this->entryIsMine( $entry_id ) )
@@ -995,7 +998,7 @@ CREATE TABLE `pwm`.`entries` (
 				'UPDATE ' . $this->pwmTable . ' SET label = ?, username = ?, password = ?, url = ?, notes = ? WHERE entry_id = ?' );
 			$query->execute( array ( $entry[ 'label' ], $entry[ 'username' ],
 				$entry[ 'password' ], $entry[ 'url' ], $entry[ 'notes' ], $entry_id ) );
-			$this->alert( 'Updated entry: ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
+			$this->alert( 'Updated ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
 		}
 		return true;
 	}
