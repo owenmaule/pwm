@@ -21,6 +21,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.	
 */
 
+	require_once 'constants.php';
+
 	$errorTypes = array (
 		E_ERROR => ALERT_ERROR,
 		E_WARNING => ALERT_WARNING,
