@@ -30,4 +30,10 @@ $( function() {
 			$( this ).hide();
 		} );
 	}
+	
+	$( "#selector" ).click( function() {
+		// Very basic solution, will be improved to make an asynchronous call to json feed
+		location.href = appLocation + 'entry/' + $( this ).val();
+	} );
+	$( "#select-entry" ).hide();
 } );
