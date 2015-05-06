@@ -253,7 +253,7 @@ input#search-button {
 select#selector {
 	float: left;
 	width: 200px;
-	height: 426px;
+	height: 420px;
 }
 
 div#selector-buttons {
@@ -287,7 +287,7 @@ form#entry-form textarea {
 @media only screen and (max-width:727px)
 {
 	select#selector {
-		height: 518px;
+		height: 510px;
 	}
 
 	form#entry-form {
