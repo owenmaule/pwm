@@ -37,8 +37,8 @@ header {
 
 header div#header-overlay,
 div#main {
-	position: relative;
-/*	z-index: 2; */
+/*	position: relative;
+	z-index: 2; */
 }
 
 header div#header-overlay {
@@ -46,8 +46,13 @@ header div#header-overlay {
 /*	outline: 1px solid Magenta; */
 }
 
-nav {
+nav.pure-menu {
+	width: auto;
+	position: relative;
+	z-index: 2;
 	margin-top: 5px;
+	white-space: normal;
+/*	background-color: Green; */
 }
 
 div#main {
@@ -64,7 +69,8 @@ footer {
 
 div#alert {
 	float: right;
-	width: auto;
+	position: relative;
+	z-index: 3;
 	margin: 0 0 8px 8px;
 }
 div#alert span {
@@ -99,15 +105,16 @@ header div.logo-mount {
 	clear: right;
 	position: relative;
 	top: -8px;
-	width: 0;
-	height: 0;
-/*	z-index: 1; */
-/*	border: 1px solid Red; */
 }
 
 header img.logo {
 	position: absolute;
 	right: 0;
+/*	z-index: 0; */
+}
+
+header img.logo:hover {
+	z-index: 1;
 }
 
 h1, h2 {
@@ -150,10 +157,6 @@ a:hover {
 }
 a:active {
     color: MediumBlue;
-}
-
-nav.pure-menu {
-	white-space: normal;
 }
 
 .pure-menu li {
@@ -243,6 +246,17 @@ form#entry-form {
 	margin-bottom: 0;
 }
 
+form#search-form {
+	display: inline-block;
+	position: relative;
+	z-index: 2;
+}
+
+form#search-form span.nowrap {
+	/* Hack for Chrome */
+	display: inline-block;
+}
+
 input#search {
 	width: 200px;
 }
@@ -284,14 +298,21 @@ form#entry-form textarea {
 	width: 483px;
 }
 
-@media only screen and (max-width:727px)
+@media only screen and ( max-width: 727px )
 {
+	form#auth-form label {
+		display: block;
+		text-align: left;
+	}
+	form#auth-form div.button-bar {
+		margin-left: 0;
+	}
+
 	select#selector {
 		height: 510px;
 	}
 
 	form#entry-form {
-/*		background-color: Red; */
 		padding-right: 8px;
 	}
 
@@ -313,12 +334,8 @@ form#entry-form textarea {
 	}
 }
 
-@media only screen and (max-width:457px)
+@media only screen and ( max-width: 457px )
 {
-	form#auth-form div.button-bar {
-		margin-left: 0;
-	}
-
 	select#selector {
 		width: 100%;
 		height: 200px;
