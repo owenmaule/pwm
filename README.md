@@ -61,7 +61,7 @@ You can also achieve or reinforce this by uncommenting the lines in .htaccess
 
 1. The menu links near the top are to [Change password] and [Logout]. When you click [Change Password] you will be able to type in a new password and press [Change] to set it. If you change your mind you can press [Cancel] to leave your password as it was.
 2. Usually when logged in, you are on the entry screen. The list box shows the labels for your entries. To create your first entry, fill in the form with label, username, password, URL and notes and press [Create]. The label is the only mandatory field.
-3. You may select an entry in the list by clicking it and pressing [Select]. You will then be viewing the entry.
+3. You may select an entry in the list by clicking it and pressing [Select]. In Javascript enabled browsers, the [Select] button will be hidden and entries can be viewed simply by clicking in the list. You will then be viewing the entry.
 4. If you are viewing an entry and change the details, press [Edit] to submit them.
 5. When viewing an entry you may press [Delete] to immediately delete the entry. ( There is no confirmation yet. )
 6. If an entry is selected i.e. details are displayed, and you instead wish to create a new one, press [New] to prepare the entry form. You may then fill in the fields as a new entry and press [Create] as in step 2.
