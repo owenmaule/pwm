@@ -98,7 +98,7 @@ if( ! ( $path = $content[ 'rel_path' ] ) )
 	</footer>
 
 	<script type="text/javascript">
-		var debugToConsole = <?php echo ( 'console' == $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>;
+		var debugToConsole = <?php echo ( 'console' === $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>;
 	</script>
 </body>
 </html>
