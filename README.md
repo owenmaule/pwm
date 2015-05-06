@@ -48,7 +48,7 @@ You can also achieve or reinforce this by uncommenting the lines in .htaccess
 	RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 </code></pre>
 7. You may wish to tweak the template/theme in file 'template.php'. Please remember to show the copyright notice, licence and GitHub link. You may move them to an 'about' page for example, they don't have to be in the footer. If you modify the code, make sure you include your contact details so your users and myself can contact you to request the source code. Thanks for playing fair and sharing back your changes with the community.
-8. Experts only: If you are going to tweak the encryption settings 'salt_length' and/or 'hash_algo', I suggest you do it before registering accounts, otherwise the passwords will need to be reset. Make sure to also increase the length of the 'user_password' field in the authentication database schema, to accommodate added salt. It will require 2 extra characters per increment of 'salt_length' (bytes), as the salt is stored in hexidecimal. Likewise the length of 'password' will need to be adjusted in accordance with a change to 'hash_algo', as passed to the PHP <a href="http://php.net/manual/en/function.hash.php" rel="nofollow" target="_blank">hash()</a> function.
+8. Experts only: If you are going to tweak the encryption settings 'salt_length' and/or 'hash_algo', I suggest you do it before registering accounts, otherwise the passwords will need to be reset. Make sure to also increase the length of the 'user_password' field in the authentication database schema, to accommodate added salt. It will require 2 extra characters per increment of 'salt_length' (bytes), as the salt is stored in hexidecimal. Likewise the length of 'user_password' will need to be adjusted in accordance with a change to 'hash_algo', as passed to the PHP <a href="http://php.net/manual/en/function.hash.php" rel="nofollow" target="_blank">hash()</a> function.
 
 #How to use - Authentication
 
@@ -61,7 +61,7 @@ You can also achieve or reinforce this by uncommenting the lines in .htaccess
 
 1. The menu links near the top are to [Change password] and [Logout]. When you click [Change Password] you will be able to type in a new password and press [Change] to set it. If you change your mind you can press [Cancel] to leave your password as it was.
 2. Usually when logged in, you are on the entry screen. The list box shows the labels for your entries. To create your first entry, fill in the form with label, username, password, URL and notes and press [Create]. The label is the only mandatory field.
-3. You may select an entry in the list by clicking it and pressing [Select]. You will then be viewing the entry.
+3. You may select an entry in the list by clicking it and pressing [Select]. In Javascript enabled browsers, the [Select] button will be hidden and entries can be viewed simply by clicking in the list. You will then be viewing the entry.
 4. If you are viewing an entry and change the details, press [Edit] to submit them.
 5. When viewing an entry you may press [Delete] to immediately delete the entry. ( There is no confirmation yet. )
 6. If an entry is selected i.e. details are displayed, and you instead wish to create a new one, press [New] to prepare the entry form. You may then fill in the fields as a new entry and press [Create] as in step 2.
