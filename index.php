@@ -26,8 +26,8 @@
 
 	try
 	{
-		require_once 'pwm.php';
 		require_once 'error_handling.php';
+		require_once 'pwm.php';
 
 		$pwm = new pwm();
 		
@@ -40,7 +40,7 @@
 	}
 	catch ( Exception $e )
 	{
-		if( is_object( $pwm ) )
+		if( isset( $pwm ) && is_object( $pwm ) )
 		{
 			$pwm->alert( $e->getMessage(), ALERT_ERROR );
 		} else {
