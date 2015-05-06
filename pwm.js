@@ -36,36 +36,95 @@ $( function() {
 		$( this ).fadeOut( 600 );
 	} );
 
-	// Ahhh Ninja!
-	$( "header img.logo" )
-		.bind( "dragstart", function( e ) {
-			e.preventDefault();
-		} )
-		.click( function() {
-			$( this ).css( "z-index", 3 )
-				.animate( { right: "-100px", opacity: 0 }, 3600, function() {
-					$( this ).hide();
-				} )
-		} );
-
-	// Overlap more elements
-	$( "nav.pure-menu" ).css( "z-index", 0 );
-	$( "form#entry-form input[type=text]" ).css( "z-index", 0 );
-
+	// Click list, to view entries
 	$( "#selector" ).click( function() {
 		// Very basic solution, will be improved to make an asynchronous call to json feed
 		location.href = appLocation + 'entry/' + $( this ).val();
 	} );
 	$( "#select-entry" ).hide();
 
+	// ZeroClipboard
 	if( enableClipboard )
 	{
-		$( "body" ).on( "copy", "#entry-form input[type=text], #entry-form input[type=password]", function( e ) {
-			var textToCopy = $( this ).val() ? $( this ).val() : "nothing";
-			console.log( 'Clipboard copy: ' + textToCopy );
+		$( "body" ).on( "copy", "#entry-form input[type=text], #entry-form input[type=password]", function( e )
+		{
+			var textToCopy = $( this ).val();
 
-			e.clipboardData.setData( "text/plain", textToCopy );
-			e.preventDefault();
+			if( textToCopy )
+			{
+				console.log( 'Clipboard copy: ' + textToCopy );
+
+				e.clipboardData.setData( "text/plain", textToCopy );
+				e.preventDefault();
+			}
 		} );
 	}
+
+	/* Ahhh Ninja! - i.e. Silly stuff beyond this point */
+
+	// Overlap more elements
+	$( "nav.pure-menu" ).css( "z-index", 0 );
+	$( "form#entry-form input[type=text]" ).css( "z-index", 0 );
+
+	var backgroundFading = false,
+		defaultBackgroundColour = $( "body" ).css( "background-color" ),
+		CRIMSON = "#DC143C";
+
+	function surpriseAttack( disable )
+	{
+		if( ! backgroundFading )
+		{
+			backgroundFading = true;
+			$( "body" ).animate( { backgroundColor: CRIMSON }, 50, "easeInCirc" )
+				.animate( { backgroundColor: defaultBackgroundColour }, 50, "easeOutCirc",
+				function() {
+					if( disable )
+					{	// disable for 7s
+						setTimeout( function() {
+							backgroundFading = false;
+						}, 7000 );
+					} else {
+						backgroundFading = false;
+					}
+				} );
+		}
+	}
+
+	$( "header img.logo" )
+		.bind( "dragstart", function( e ) {
+			e.preventDefault();
+		} )
+		.click( function() {
+			backgroundFading = true;
+			$( this ).css( { zIndex: 3, opacity: 1 } )
+				.animate( { right: "-100px" }, 300, function() {
+						// animate background in sync
+						$( "body" )
+							.delay( 100 )
+							.animate( { backgroundColor: CRIMSON }, 50, "easeInCirc" )
+							.animate( { backgroundColor: defaultBackgroundColour }, 50, "easeOutCirc" );
+					} )
+				.animate( { right: "0px" }, 900, "easeOutElastic" )
+				.animate( { right: "-100px", opacity: 0 }, 600, "easeInOutCirc", function() {
+						$( this ).hide();
+						setTimeout( function() { // disable for 7s
+							backgroundFading = false;
+						}, 7000 );
+					} )
+		} )
+		// Page load animation
+		.css( { zIndex: 3, right: "-100px", opacity: 0 } )
+		.animate( { right: "0px", opacity: 1 }, 900 )
+		// jQuery animate breaks the css :hover - so implement in jQuery
+		.mouseover( function() {
+				$( this ).css( "opacity", .8 );
+		} )
+		.mouseout( function() { 
+				$( this ).css( "opacity", 1 );
+		} )
+		;
+	
+	$( "h1 a" ).mouseover( function() {
+		surpriseAttack( true );
+	} );
 } );
