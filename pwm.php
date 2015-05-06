@@ -1051,7 +1051,6 @@ CREATE TABLE `pwm`.`entries` (
 			$entry = $this->copyEntryFields( $_POST );
 			if( ! $entry )
 			{
-				var_export( $_POST );
 				$this->alert( 'Entry data incomplete', ALERT_ERROR );
 				return false;
 			}
