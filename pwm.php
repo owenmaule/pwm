@@ -35,32 +35,7 @@
 		( I expect it's okay, it's Tux and GPL software. )
 */
 
-define( 'NL', "\n" );
-define( 'RN', "\r\n" );
-define( 'BR', '<br />' . NL );
-
-# Invalid in indentifier, for use in PCRE regex
-define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' );
-
-define( 'TIME_FORMAT', 'l jS \of F Y h:i:s A' );
-define( 'TOKEN_DELIM', '-' );
-
-define( 'ALERT_ERROR', 'error' );
-define( 'ALERT_NOTE', 'note' );
-define( 'ALERT_DENIED', 'denied' );
-define( 'ALERT_DEBUG', 'debug' );
-define( 'ALERT_WARNING', 'warn' );
-
-define( 'AUTH_LOGIN', 'Login' );
-define( 'AUTH_REGISTER', 'Register' );
-define( 'AUTH_CHANGE', 'Change' );
-define( 'AUTH_RESET', 'Reset' );
-define( 'AUTH_CANCEL', 'Cancel' );
-define( 'AUTH_LOGOUT', 'Logout' );
-
-define( 'ENTRY_CREATE', 'Create' );
-define( 'ENTRY_UPDATE', 'Update' );
-define( 'ENTRY_DELETE', 'Delete' );
+require_once 'constants.php';
 
 class pwm
 {
@@ -112,17 +87,10 @@ class pwm
 			throw new Exception ( 'Missing database configuration' );
 		}
 
-		try {
-			$this->database = new PDO( $config[ 'dsn' ], $config[ 'db_user' ], $config[ 'db_password' ],
-				array ( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-					PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC )
-			);
-		} catch ( Exception $e )
-		{
-			throw new Exception ( 'Failed to open data store' . BR . $e->getMessage() );
-		}
-
 		$this->setAppLocation();
+		$this->content[ 'enable_clipboard' ] = ! empty( $config[ 'enable_clipboard' ] );
+
+		$this->seedRNG();
 
 		if( true !== ( $errorMessage = $this->install() ) )
 		{
@@ -132,10 +100,34 @@ class pwm
 		session_start();
 	}
 	
+	# Seed Random Number Generator with microseconds
+	public function seedRNG()
+	{
+		list( $usec, $sec ) = explode( ' ', microtime() );
+		mt_srand( (float) $sec + ( (float) $usec * 100000 ) );
+	}
+	
+	# Set up database
+	# Return true for success or error message on failure
 	public function install()
 	{
-		# Set up database
-		# Return true for success or error message on failure
+		# Open database connection
+		try {
+			$this->database = new PDO( $this->config[ 'dsn' ],
+					$this->config[ 'db_user' ], $this->config[ 'db_password' ],
+				array ( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+					PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC )
+			);
+			if( empty( $this->database ) )
+			{
+				throw new Exception ( 'Invalid configuration. See warning above.' );
+			}
+		} catch ( Exception $e )
+		{
+			throw new Exception ( 'Failed to open data store ' . $this->config[ 'dsn' ] . BR
+				. 'Exception: ' . $e->getMessage() );
+		}
+		
 /*
 CREATE TABLE `pwm`.`users` (
 `user_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
@@ -165,7 +157,7 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$this->authTable = $this->config[ 'db_auth_table' ];
 
-		# Password details table
+		# Password Manager entries table
 		if( true !== ( $errorMessage = $this->checkCreateTable( 'db_pwm_table', '(
 `entry_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `user_id` INT( 11 ) UNSIGNED NOT NULL ,
@@ -302,7 +294,7 @@ CREATE TABLE `pwm`.`entries` (
 	
 	public function testAlerts()
 	{
-		foreach( array ( ALERT_ERROR, ALERT_NOTE, ALERT_DENIED, ALERT_DEBUG, ALERT_WARNING )
+		foreach( array ( ALERT_ERROR, ALERT_NOTE, ALERT_DENY, ALERT_DEBUG, ALERT_WARN )
 			as $alert )
 		{
 			$this->alert( ucwords( $alert ) . ': Test alert colours', $alert );
@@ -431,7 +423,7 @@ CREATE TABLE `pwm`.`entries` (
 				{
 					if( isset( $_POST[ 'user' ] ) )
 					{
-						$this->alert( 'Must supply credentials to log in', ALERT_DENIED );
+						$this->alert( 'Must supply credentials to log in', ALERT_DENY );
 					}
 				} else {
 					# Submitted for login
@@ -453,7 +445,7 @@ CREATE TABLE `pwm`.`entries` (
 				$result = $query->fetch();
 				if( false == $result || empty( $result[ 'user_password' ] ) )
 				{
-					$this->alert( 'Account not found', ALERT_DENIED );
+					$this->alert( 'Account not found', ALERT_DENY );
 				} else {
 					if( $this->password_verify( $login_password, $result[ 'user_password' ] ) )
 					{
@@ -468,7 +460,7 @@ CREATE TABLE `pwm`.`entries` (
 					} else {
 						$_SESSION[ 'user' ] = '';
 						$_SESSION[ 'login_password' ] = '';
-						$this->alert( 'Login failed', ALERT_DENIED );
+						$this->alert( 'Login failed', ALERT_DENY );
 					}
 				}
 			}
@@ -499,7 +491,7 @@ CREATE TABLE `pwm`.`entries` (
 	{
 		if( empty( $_POST[ 'user' ] ) || empty( $_POST[ 'login_password' ] ) )
 		{
-			$this->alert( 'Must supply credentials to register', ALERT_DENIED );
+			$this->alert( 'Must supply credentials to register', ALERT_DENY );
 			return false;
 		}
 		$user = $_POST[ 'user' ];
@@ -510,7 +502,7 @@ CREATE TABLE `pwm`.`entries` (
 		$result = $query->fetch();
 		if( false != $result )
 		{
-			$this->alert( 'User ' . htmlspecialchars( $user ) . ' already exists', ALERT_DENIED );
+			$this->alert( 'User ' . htmlspecialchars( $user ) . ' already exists', ALERT_DENY );
 			return false;
 		}
 		
@@ -521,7 +513,7 @@ CREATE TABLE `pwm`.`entries` (
 			if( $cleanEmail != $user
 				|| ! filter_var( $cleanEmail, FILTER_VALIDATE_EMAIL ) )
 			{
-				$this->alert( 'The email address supplied was considered invalid', ALERT_DENIED );
+				$this->alert( 'The email address supplied was considered invalid', ALERT_DENY );
 				return false;				
 			}
 			$user = $cleanEmail;
@@ -529,7 +521,7 @@ CREATE TABLE `pwm`.`entries` (
 			# regex validation
 			if( ! eregi( '^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-z]{2,3}$', $user ) )
 			{
-				$this->alert( 'The email address supplied was considered invalid', ALERT_DENIED );
+				$this->alert( 'The email address supplied was considered invalid', ALERT_DENY );
 				return false;				
 			}
 		}
@@ -538,7 +530,7 @@ CREATE TABLE `pwm`.`entries` (
 		$lowQuality = $this->passwordQuality( $login_password );
 		if( $lowQuality )
 		{
-			$this->alert( 'Your password is low quality: ' . $lowQuality, ALERT_DENIED );
+			$this->alert( 'Your password is low quality: ' . $lowQuality, ALERT_DENY );
 			return false;
 		}
 		
@@ -558,6 +550,7 @@ CREATE TABLE `pwm`.`entries` (
 		$query->execute( array ( $user, $hash ) );
 		$this->alert( 'Created user: ' . htmlspecialchars( $user ) . ' password: ' . $login_password,
 			ALERT_DEBUG );
+
 		# to do: email validation link
 		# login
 		$query = $this->database->prepare(
@@ -578,7 +571,7 @@ CREATE TABLE `pwm`.`entries` (
 	{
 		if( ! $this->loggedIn )
 		{
-			$this->alert( 'Must be logged in to change password', ALERT_DENIED );
+			$this->alert( 'Must be logged in to change password', ALERT_DENY );
 			return false;
 		}
 
@@ -586,7 +579,7 @@ CREATE TABLE `pwm`.`entries` (
 		{
 			if( isset( $_POST[ 'login_password' ] ) )
 			{
-				$this->alert( 'Must supply a replacement password', ALERT_DENIED );
+				$this->alert( 'Must supply a replacement password', ALERT_DENY );
 			}
 			return false;
 		}
@@ -595,7 +588,7 @@ CREATE TABLE `pwm`.`entries` (
 		$lowQuality = $this->passwordQuality( $password );
 		if( $lowQuality )
 		{
-			$this->alert( 'Your password is low quality: ' . $lowQuality, ALERT_DENIED );
+			$this->alert( 'Your password is low quality: ' . $lowQuality, ALERT_DENY );
 			return false;
 		}
 		
@@ -654,7 +647,7 @@ CREATE TABLE `pwm`.`entries` (
 				|| empty( $result[ 'user_email' ] )
 				|| empty( $result[ 'user_password' ] ) )
 			{
-				$this->alert( 'Account not found', ALERT_DENIED );
+				$this->alert( 'Account not found', ALERT_DENY );
 				return false;
 			}
 
@@ -666,7 +659,7 @@ CREATE TABLE `pwm`.`entries` (
 			$emailLength = strlen( $email );
 			if( 0 !== strncmp( $rawToken, $email, $emailLength ) )
 			{
-				$this->alert( 'Invalid token', ALERT_DENIED );
+				$this->alert( 'Invalid token', ALERT_DENY );
 				$this->alert( 'rawToken=' . $rawToken. ' passwordHash='
 					. implode( BR, str_split( $passwordHash, 44 ) ), ALERT_DEBUG );
 				return false;
@@ -678,7 +671,7 @@ CREATE TABLE `pwm`.`entries` (
 			$tokenTime = false;
 			if( ! $hexTime || ( $tokenTime = hexdec( $hexTime ) ) > $timeNow )
 			{
-				$this->alert( 'Invalid token time', ALERT_DENIED );
+				$this->alert( 'Invalid token time', ALERT_DENY );
 				$this->alert( 'hexTime=' . ( '' == $hexTime ? '\'\'' : '' ) . BR
 					. 'tokenTime=' . ( $tokenTime ? date( TIME_FORMAT, $tokenTime ) : 'undefined' ) . BR
 					. 'timeNow=' . date( TIME_FORMAT, $timeNow ),
@@ -691,7 +684,7 @@ CREATE TABLE `pwm`.`entries` (
 #				. 'timeSince=' . number_format ( $timeSince / 60.0, 1 ) . ' minutes', ALERT_DEBUG );
 			if( $timeSince > $resetTimer )
 			{
-				$this->alert( 'Valid token has timed out. Request a new one', ALERT_DENIED );
+				$this->alert( 'Valid token has timed out. Request a new one', ALERT_DENY );
 				return false;
 			}
 			
@@ -720,7 +713,7 @@ CREATE TABLE `pwm`.`entries` (
 		# Check for request to send the email
 		if( empty( $_POST[ 'user' ] ) )
 		{
-			$this->alert( 'Must supply email to reset password', ALERT_DENIED );
+			$this->alert( 'Must supply email to reset password', ALERT_DENY );
 			return false;
 		}
 		$user = $_POST[ 'user' ];
@@ -730,7 +723,7 @@ CREATE TABLE `pwm`.`entries` (
 		$result = $query->fetch();
 		if( false == $result || empty( $result[ 'user_id' ] ) || empty( $result[ 'user_password' ] ) )
 		{
-			$this->alert( 'Account not found', ALERT_DENIED );
+			$this->alert( 'Account not found', ALERT_DENY );
 			return false;
 		}
 		
@@ -924,7 +917,7 @@ CREATE TABLE `pwm`.`entries` (
 		
 		if( $result[ 'user_id' ] != $_SESSION[ 'user_id' ] )
 		{
-			$this->alert( 'The selected entry does not belong to you', ALERT_DENIED );
+			$this->alert( 'The selected entry does not belong to you', ALERT_DENY );
 			return false;
 		}
 		return true;
@@ -994,7 +987,7 @@ CREATE TABLE `pwm`.`entries` (
 		
 		if( empty( $entry[ 'label' ] ) )
 		{
-			$this->alert( 'Entries must have a label', ALERT_DENIED );
+			$this->alert( 'Entries must have a label', ALERT_DENY );
 			return false;
 		}
 
@@ -1153,7 +1146,7 @@ CREATE TABLE `pwm`.`entries` (
 				<input type="text" id="search" name="search" value="'
 				. htmlspecialchars( $search ) . '" placeholder="Search" />
 				<span class="nowrap">
-					<input type="submit" id="search-button" value="Search"  />
+					<input type="submit" id="search-button" value="Search" />
 					<input type="submit" name="reset" value="X" />
 				</span>
 			</div>
@@ -1172,7 +1165,8 @@ CREATE TABLE `pwm`.`entries` (
 			$main .= 
 '					<option value="' . $entry_id . '" title="' . $label . '"'
 				. ( $entry_id == $this->selected ? ' selected="selected"' : '' ) . '>'
-				. $label . '</option>';
+				. $label . '</option>
+';
 		}
 
 		/*
@@ -1183,8 +1177,8 @@ CREATE TABLE `pwm`.`entries` (
 		URL - Copy to clipboard / Open site
 		Notes
 		*/
-		$main .= '
-			</select>
+		$main .= 
+'			</select>
 			<div id="selector-buttons" class="button-bar">
 				<input id="select-entry" type="submit" value="Select" />
 				<input type="submit"' . ( ! (int) $this->selected ? ' class="hidden"' : '' )
@@ -1198,7 +1192,7 @@ CREATE TABLE `pwm`.`entries` (
 			. $this->entry[ 'label' ] . '" />
 			<label for="username">Username: </label><input type="text" id="username" name="username" '
 			. 'value="' . $this->entry[ 'username' ] . '" />
-			<label for="password">Password: </label><input type="text" id="password" name="password" '
+			<label for="password">Password: </label><input type="password" id="password" name="password" '
 			. 'value="' . $this->entry[ 'password' ] . '" />
 			<label for="url">Web address: </label><input type="text" id="url" name="url" value="'
 			. $this->entry[ 'url' ] . '" />
@@ -1206,8 +1200,8 @@ CREATE TABLE `pwm`.`entries` (
 			<textarea id="notes" name="notes">' . $this->entry[ 'notes' ] . '</textarea>
 			<div class="button-bar">
 				<input type="submit" name="edit" value="' . ( $newEntry ? ENTRY_CREATE : ENTRY_UPDATE )
-				. '"  />
-				<input type="submit" name="edit" value="' . ENTRY_DELETE . '"  />
+				. '" />
+				<input type="submit" name="edit" value="' . ENTRY_DELETE . '" />
 			</div>
 		</form>';
 
