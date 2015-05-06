@@ -41,7 +41,7 @@
 		$pathParts = explode( '/', $errfile );
 		$errfilename = end( $pathParts );
 		$errorText = 'PHP ' . $errorType . ': ' . $errfilename . ':' . $errline . ' ' . $errstr;
-		if( is_object( $pwm ) )
+		if( isset( $pwm ) && is_object( $pwm ) )
 		{
 			$pwm->alert( $errorText, $errorType );
 		} else {
