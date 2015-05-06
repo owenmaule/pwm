@@ -23,4 +23,11 @@
 $( function() {
 	console.log( "pwm Password Manager (c) Copyright Owen Maule 2015 <o@owen-m.com> http://owen-m.com/" );
 	console.log( "Latest version: https://github.com/owenmaule/pwm   Licence: GNU Affero General Public License" );
+	if( debugToConsole )
+	{	// Transfer debug alerts to console
+		$( "#alert .alert-debug" ).each( function() {
+			console.log( 'debug: ' + $( this ).html() );
+			$( this ).hide();
+		} );
+	}
 } );
