@@ -45,6 +45,7 @@ define( 'ALERT_ERROR', 'error' );
 define( 'ALERT_NOTE', 'note' );
 define( 'ALERT_DENIED', 'denied' );
 define( 'ALERT_DEBUG', 'debug' );
+define( 'ALERT_WARNING', 'warn' );
 
 define( 'AUTH_LOGIN', 'Login' );
 define( 'AUTH_REGISTER', 'Register' );
@@ -78,6 +79,7 @@ class pwm
 	private $pwmTable = '';
 	private $selected = 0;
 	public $entries = array ( );
+	public $fields = array ( 'entry_id', 'label', 'username', 'password', 'url', 'notes' );
 	public $entry = array ( );
 
 	public function __construct()
@@ -87,8 +89,8 @@ class pwm
 
 		# true, false or 'console'
 		$this->content[ 'alert_debug' ] = empty( $config[ 'debug_messages' ] ) ? false :
-			( empty( $config[ 'debug_to_console' ] ) ? true : 'console' );
-		
+			( 'console' === $config[ 'debug_messages' ] ? 'console' : true );
+
 		if( ! empty( $config[ 'enforce_https' ] ) )
 		{
 			if( empty( $_SERVER[ 'HTTPS' ] ) || $_SERVER[ 'HTTPS' ] !== 'on' )
@@ -284,6 +286,15 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$content = $this->content;	# pass content in $content
 		require_once $theme;
+	}
+	
+	public function testAlerts()
+	{
+		foreach( array( ALERT_ERROR, ALERT_NOTE, ALERT_DENIED, ALERT_DEBUG, ALERT_WARNING )
+			as $alert )
+		{
+			$this->alert( ucwords( $alert ) . ': Test alert colours', $alert );
+		}
 	}
 	
 	/* Authentication */
@@ -988,10 +999,9 @@ CREATE TABLE `pwm`.`entries` (
 			$this->alert( 'Edit action: ' . htmlspecialchars( $_POST[ 'edit' ] ), ALERT_DEBUG );
 
 			$entry_id = $_POST[ 'entry_id' ];
-			$fields = array ( 'entry_id', 'label', 'username', 'password', 'url', 'notes' );
 			$missing = array ( );
 			$entry = array ( );
-			foreach( $fields as $field )
+			foreach( $this->fields as $field )
 			{
 				if( ! isset( $_POST[ $field ] ) )
 				{
@@ -1092,6 +1102,7 @@ CREATE TABLE `pwm`.`entries` (
 		{
 			$this->selected = 0;
 			$newEntry = true;
+			$this->entry = array_fill_keys( $this->fields, '' );
 		}
 		$_SESSION[ 'selected' ] = $this->selected;
 
