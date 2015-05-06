@@ -35,7 +35,16 @@ $( function() {
 	$( "#alert span" ).dblclick( function() {
 		$( this ).hide();
 	} );
-	
+
+	// Ahhh Ninja!
+	$( "header img.logo" )
+		.bind( "dragstart", function( e ) {
+			e.preventDefault();
+		} )
+		.dblclick( function() {
+			$( this ).hide();
+		} );
+
 	$( "#selector" ).click( function() {
 		// Very basic solution, will be improved to make an asynchronous call to json feed
 		location.href = appLocation + 'entry/' + $( this ).val();
