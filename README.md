@@ -33,7 +33,7 @@ Similar products are <a href="http://keepass.info/" rel="nofollow" target="_blan
 <pre><code>
 	'debug_messages' => true,
 </code></pre>
-If you prefer you can route the debug messages to the browser console, with a special value of 'debug_messages', however in this case be careful to remember to disable this again, as debug messages can potentially contain sensitive information that threaten the security of the system.
+It is possible to route the debug messages to the browser console, with a special value of 'debug_messages'. Don't forget to disable this again when you finish debugging.
 <pre><code>
 	'debug_messages' => 'console',
 </code></pre>
