@@ -88,7 +88,10 @@ class pwm
 		}
 
 		$this->setAppLocation();
-		$this->content[ 'enable_clipboard' ] = ! empty( $config[ 'enable_clipboard' ] );
+		// Need to generalise these pass-throughs soon
+		$this->content[ 'disable_clipboard' ] = ! empty( $config[ 'disable_clipboard' ] );
+		$this->content[ 'debug_layout' ] = ! empty( $config[ 'debug_layout' ] );
+		$this->content[ 'disable_javascript' ] = ! empty( $config[ 'disable_javascript' ] );
 
 		$this->seedRNG();
 
@@ -1188,14 +1191,25 @@ CREATE TABLE `pwm`.`entries` (
 		<form id="entry-form" action="' . $this->content[ 'rel_path' ]
 			. 'edit" method="post" class="pure-form">
 			<input type="hidden" name="entry_id" value="' . $this->selected . '" />
-			<label for="label">Label: </label><input type="text" id="label" name="label" value="'
-			. $this->entry[ 'label' ] . '" />
-			<label for="username">Username: </label><input type="text" id="username" name="username" '
-			. 'value="' . $this->entry[ 'username' ] . '" />
-			<label for="password">Password: </label><input type="password" id="password" name="password" '
-			. 'value="' . $this->entry[ 'password' ] . '" />
-			<label for="url">Web address: </label><input type="text" id="url" name="url" value="'
-			. $this->entry[ 'url' ] . '" />
+			<label for="label">Label: </label><span class="compress-field">
+				<input type="text" id="label" name="label" value="'
+					. $this->entry[ 'label' ] . '" autocomplete="off" />
+				</span>
+			<label for="username">Username: </label><span class="compress-field">
+				<input type="submit" value="Copy" />
+				<input type="text" id="username" name="username" value="'
+					. $this->entry[ 'username' ] . '" autocomplete="off" />
+				</span>
+			<label for="password">Password: </label><span class="compress-field two-button">
+				<input type="submit" value="Copy" /><input type="submit" value="Show" class="button2" />
+				<input type="password" id="password" name="password" value="'
+					. $this->entry[ 'password' ] . '" autocomplete="off" />
+				</span>
+			<label for="url">Web address: </label><span class="compress-field two-button">
+				<input type="submit" value="Copy" /><input type="submit" value="Go" class="button2" />
+				<input type="text" id="url" name="url" value="'
+					. $this->entry[ 'url' ] . '" autocomplete="off" />
+				</span>
 			<label for="notes" class="textarea-label">Notes: </label><br />
 			<textarea id="notes" name="notes">' . $this->entry[ 'notes' ] . '</textarea>
 			<div class="button-bar">
