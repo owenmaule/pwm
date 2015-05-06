@@ -48,6 +48,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" href="<?php echo $path; ?>pwm.css" />
 	<script type="text/javascript" src="<?php echo $path; ?>jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="<?php echo $path; ?>jquery-ui.easing.min.js"></script>
 	<?php echo ! empty( $content[ 'enable_clipboard' ] )
 		? '<script type="text/javascript" src="' . $path . 'jquery.zeroclipboard.min.js"></script>
 ' : '' ?>
