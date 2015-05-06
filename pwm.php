@@ -906,6 +906,44 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		return true;
 	}
+
+	# Check that no fields are missing (they can be 0 or '')
+	public function copyEntryFields( &$entry, $fields = null )
+	{
+		if( ! is_array( $entry ) )
+		{
+			$this->alert( 'copyEntryFields(): entry not an array', ALERT_DEBUG );
+			return false;
+		}
+		if( null === $fields )
+		{
+			$fields = $this->fields;
+		}
+		if( ! is_array( $fields ) )
+		{
+			$this->alert( 'copyEntryFields(): fields not an array', ALERT_DEBUG );
+			return false;
+		}
+		
+		$missing = array ( );
+		$entryCopy = array ( );
+		foreach( $fields as $field )
+		{
+			if( ! isset( $entry[ $field ] ) )
+			{
+				$missing[] = $field;
+			} else {
+				$entryCopy[ $field ] = $entry[ $field ];
+			}
+		}
+		if( count( $missing ) )
+		{
+			$this->alert( 'copyEntryFields(): Fields missing: ' . implode( ', ', $missing ),
+				ALERT_DEBUG );
+			return false;
+		}
+		return $entryCopy;
+	}
 	
 	public function loadEntry( $selected )
 	{
@@ -924,13 +962,7 @@ CREATE TABLE `pwm`.`entries` (
 	
 	public function saveEntry( $entry )
 	{
-		if( ! is_array( $entry )
-			|| ! isset( $entry[ 'label' ] )
-			|| ! isset( $entry[ 'username' ] )
-			|| ! isset( $entry[ 'password' ] )
-			|| ! isset( $entry[ 'url' ] )
-			|| ! isset( $entry[ 'notes' ] )
-			)
+		if( ! $this->copyEntryFields( $entry ) )
 		{
 			$this->alert( 'Invalid entry submitted for storage', ALERT_ERROR );
 			return false;
@@ -940,10 +972,9 @@ CREATE TABLE `pwm`.`entries` (
 		{
 			$this->alert( 'Entries must have a label', ALERT_DENIED );
 			return false;
-			
 		}
-		
-		if( ! isset( $entry[ 'entry_id' ] ) || ! $entry[ 'entry_id' ] )
+
+		if( empty( $entry[ 'entry_id' ] ) )
 		{
 			# Insert entry
 			$user_id = $_SESSION[ 'user_id' ];
@@ -991,35 +1022,20 @@ CREATE TABLE `pwm`.`entries` (
 	{
 		if( isset( $_POST[ 'edit' ] ) )
 		{
-			if( ! isset( $_POST[ 'entry_id' ] ) )
-			{
-				$this->alert( 'No entry supplied for action', ALERT_ERROR);
-				return false;
-			}
 			$this->alert( 'Edit action: ' . htmlspecialchars( $_POST[ 'edit' ] ), ALERT_DEBUG );
 
-			$entry_id = $_POST[ 'entry_id' ];
-			$missing = array ( );
-			$entry = array ( );
-			foreach( $this->fields as $field )
+			$entry = $this->copyEntryFields( $_POST );
+			if( ! $entry )
 			{
-				if( ! isset( $_POST[ $field ] ) )
-				{
-					$missing[] = $field;
-				} else {
-					$entry[ $field ] = $_POST[ $field ];
-				}
-			}
-			if( count( $missing ) )
-			{
-				$this->alert( 'Some fields were missing: ' . implode( ', ', $missing ), ALERT_ERROR );
+				var_export( $_POST );
+				$this->alert( 'Entry data incomplete', ALERT_ERROR );
 				return false;
 			}
 
 			switch( $_POST[ 'edit' ] )
 			{
 				case ENTRY_CREATE:
-					if( $entry_id )
+					if( $entry[ 'entry_id' ] )
 					{
 						$this->alert( 'Entry ID should not be specified when creating', ALERT_ERROR );
 					}
@@ -1032,7 +1048,7 @@ CREATE TABLE `pwm`.`entries` (
 					break;
 
 				case ENTRY_DELETE:
-					if( ! $this->deleteEntry( $entry_id ) )
+					if( ! $this->deleteEntry( $entry[ 'entry_id' ] ) )
 					{
 						return false;
 					}
