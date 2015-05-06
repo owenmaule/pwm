@@ -85,7 +85,9 @@ class pwm
 		require_once 'config.php';
 		$this->config = $config;
 
-		$this->content[ 'alert_debug' ] = ! empty( $config[ 'debug_messages' ] );
+		# true, false or 'console'
+		$this->content[ 'alert_debug' ] = empty( $config[ 'debug_messages' ] ) ? false :
+			( empty( $config[ 'debug_to_console' ] ) ? true : 'console' );
 		
 		if( ! empty( $config[ 'enforce_https' ] ) )
 		{
