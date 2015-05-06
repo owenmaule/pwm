@@ -38,8 +38,8 @@ define( 'RN', "\r\n" );
 define( 'BR', '<br />' . NL );
 
 define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' ); # Invalid in indentifier, for use in PCRE regex
-
 define( 'TIME_FORMAT', 'l jS \of F Y h:i:s A' );
+define( 'TOKEN_DELIM', '-' );
 
 define( 'ALERT_ERROR', 'error' );
 define( 'ALERT_NOTE', 'note' );
@@ -69,13 +69,16 @@ class pwm
 		'rel_path' => '',
 	);
 	public $theme = 'template.php';
-	public $entries = array ( );
-	public $entry = array ( );
+
+	private $authTable = '';
 	private $loggedIn = false;
 	private $canResetPassword = false;
-	private $selected = 0;
-	private $authTable = '';
+	private $resetToken = '';
+
 	private $pwmTable = '';
+	private $selected = 0;
+	public $entries = array ( );
+	public $entry = array ( );
 
 	public function __construct()
 	{
@@ -361,7 +364,12 @@ CREATE TABLE `pwm`.`entries` (
 		{
 			for( $loop = 0, $keyLoop = 0; $loop != $dataLength; ++$loop )
 			{
-				$decryptedChar = chr( ord( $binaryData[ $loop ] ) - ord( $key[ $keyLoop ] ) );
+				$subtraction = ord( $binaryData[ $loop ] ) - ord( $key[ $keyLoop ] );
+				if( $subtraction < 0 )
+				{
+					$subtraction += 256;
+				}
+				$decryptedChar = chr( $subtraction );
 #				$this->alert( '[' . $loop . ']: ' . ( (int) $binaryData[ $loop ] ) . ' [' . $keyLoop . ']: '
 #					. chr( $key[ $keyLoop ] ) . ' char: ' . $decryptedChar, ALERT_DEBUG );
 				$decrypted .= $decryptedChar;
@@ -585,7 +593,7 @@ CREATE TABLE `pwm`.`entries` (
 			if( 600 < ( $resetTimerConfig = (int) $this->config[ 'reset_token_timeout' ] ) )
 			{
 				$resetTimer = $resetTimerConfig;
-				$this->alert( 'Reset timer at ' . ( $resetTimer / 60.0 ) . ' minutes', ALERT_DEBUG );
+				$this->alert( 'Reset timer set at ' . ( $resetTimer / 60.0 ) . ' minutes', ALERT_DEBUG );
 			}
 		}
 		
@@ -596,18 +604,18 @@ CREATE TABLE `pwm`.`entries` (
 		# Check if received the email
 		if( $token )
 		{
-#			$this->alert( 'Got token ' . htmlspecialchars( $token ), ALERT_DEBUG );
-			$dashPos = strpos( $token, '-' );
+			$this->alert( 'Got token ' . htmlspecialchars( $token ), ALERT_DEBUG );
+			$dashPos = strpos( $token, TOKEN_DELIM );
 			if( ! $dashPos	# first position or not found
 				|| ! ( $user_id = substr( $token, 0, $dashPos ) ) ) # Find user_id and check it's a number
 			{
-				$this->alert( 'token=' . $token, ALERT_DEBUG );
 				$this->alert( 'Invalid token format', ALERT_ERROR );
+				$this->alert( 'token=' . $token, ALERT_DEBUG );
 				return false;
 			}
 
-			$passTimeToken = substr( $token, $dashPos + 1 );
-#			$this->alert( 'User=' . $user_id . ' passTimeToken=' . $passTimeToken, ALERT_DEBUG );
+			$subToken = substr( $token, $dashPos + 1 );
+			$this->alert( 'User=' . $user_id . ' subToken=' . $subToken, ALERT_DEBUG );
 
 			$query = $this->database->prepare(
 				'SELECT user_email, user_password FROM ' . $this->authTable . ' where user_id = ? ORDER BY user_id LIMIT 1' );
@@ -621,24 +629,32 @@ CREATE TABLE `pwm`.`entries` (
 				return false;
 			}
 
-			$password = utf8_decode( $result[ 'user_password' ] );
-			$passTime = $this->SymmetricDecrypt( $passTimeToken, $password );
+			$email = utf8_decode( $result[ 'user_email' ] );
+			$passwordHash = utf8_decode( $result[ 'user_password' ] );
+			$rawToken = $this->SymmetricDecrypt( $subToken, $passwordHash );
 			
 			# Validate token
-			$passwordLength = strlen( $password );
-			if( 0 !== strncmp( $passTime, $password, $passwordLength ) )
+			$emailLength = strlen( $email );
+			if( 0 !== strncmp( $rawToken, $email, $emailLength ) )
 			{
-#				$this->alert( 'passTime=' . $passTime. ' password=' . $password, ALERT_DEBUG );
-				$this->alert( 'Invalid token security', ALERT_DENIED );
+				$this->alert( 'Invalid token', ALERT_DENIED );
+				$this->alert( 'rawToken=' . $rawToken. ' passwordHash='
+					. implode( BR, str_split( $passwordHash, 44 ) ), ALERT_DEBUG );
 				return false;
 			}
 
 			# Find token creation time
-			$hexTime = substr( $passTime, $passwordLength );
+			$hexTime = substr( $rawToken, $emailLength );
 			$timeNow = (int) time();
+			$tokenTime = false;
 			if( ! $hexTime || ( $tokenTime = hexdec( $hexTime ) ) > $timeNow )
 			{
 				$this->alert( 'Invalid token time', ALERT_DENIED );
+				$this->alert( 'hexTime=' . ( '' == $hexTime ? '\'\'' : '' ) . BR
+					. 'tokenTime=' . ( $tokenTime ? date( TIME_FORMAT, $tokenTime ) : 'undefined' ) . BR
+					. 'timeNow=' . date( TIME_FORMAT, $timeNow ),
+					ALERT_DEBUG );
+				return false;
 			}
 			$timeSince = $timeNow - $tokenTime;
 #			$this->alert( 'tokenTime=' . date( TIME_FORMAT, $tokenTime ) . BR
@@ -663,7 +679,11 @@ CREATE TABLE `pwm`.`entries` (
 				if( ! $this->changePassword() )
 				{
 					$this->alert( 'Failed to change your password', ALERT_ERROR );
+					return false;
 				}
+				# Assuming a different password was set, the token is invalid
+				$this->canResetPassword = false;
+				$this->resetToken = '';
 			}
 			return true;
 		}
@@ -679,24 +699,26 @@ CREATE TABLE `pwm`.`entries` (
 			'SELECT user_id, user_password FROM ' . $this->authTable . ' where user_email = ? ORDER BY user_id LIMIT 1' );
 		$query->execute( array ( $user ) );
 		$result = $query->fetch();
-		if( false == $result || empty( $result[ 'user_id' ] ) )
+		if( false == $result || empty( $result[ 'user_id' ] ) || empty( $result[ 'user_password' ] ) )
 		{
 			$this->alert( 'Account not found', ALERT_DENIED );
 			return false;
 		}
 		
 		# Generate token and store in authTable, store time of generation in the token
-		$password = utf8_decode( $result[ 'user_password' ] );
+		$passwordHash = utf8_decode( $result[ 'user_password' ] );
+		$this->alert( 'Password hash=' . implode( BR, str_split( $passwordHash, 44 ) ), ALERT_DEBUG );
 		$time = (int) time();
-		$rawToken = $password . dechex( $time );
-		$token = $this->SymmetricEncrypt( $rawToken, $password );
-#		$this->alert( 'Time= ' . $time . ' rawToken=' . $rawToken . ' token=' . $token, ALERT_DEBUG );
-		
-/*		# Test decrypt
-		$rawToken2 = $this->SymmetricDecrypt( $token, $password );
+		$rawToken = utf8_decode( $user ) . dechex( $time );
+		$subToken = $this->SymmetricEncrypt( $rawToken, $passwordHash );
+		$token = $result[ 'user_id' ] . TOKEN_DELIM . $subToken;
+		$this->alert( 'time= ' . $time . ' rawToken=' . $rawToken . BR
+			. 'token=' . $token, ALERT_DEBUG );
+
+		# Test decrypt
+		$rawToken2 = $this->SymmetricDecrypt( $subToken, $passwordHash );
 		$this->alert( 'Decrypted rawToken=' . $rawToken2, ALERT_DEBUG );
 		$this->alert( 'Symmetric en/decryption is' . ( $rawToken != $rawToken2 ? ' NOT' : '' ) . ' working', ALERT_DEBUG );
-*/
 
 		# Send email
 		$adminEmail = isset( $this->config[ 'admin_email' ] ) ? $this->config[ 'admin_email' ] : '';
@@ -706,8 +728,9 @@ CREATE TABLE `pwm`.`entries` (
 			return false;
 		}
 
-		$resetLink = $this->config[ 'app_location' ] . 'reset/' . $result[ 'user_id' ] . '-' . $token;
+		$resetLink = $this->config[ 'app_location' ] . 'reset/' . $token;
 #		$this->alert( '<a href="' . $resetLink . '">Reset link</a>', ALERT_DEBUG );
+		$this->alert( 'resetLink=' . $resetLink, ALERT_DEBUG );
 
 		$headers = 'From: ' . $adminEmail . RN
 			. 'Reply-To: ' . $adminEmail . RN
