@@ -24,6 +24,10 @@
 	$path = ! empty( $content[ 'rel_path' ] ) ? $content[ 'rel_path' ] :
 		( ! empty( $_GET[ 'path_up' ] ) ? '../' : '' );
 
+
+	$debugLayout = ! empty( $content[ 'debug_layout' ] ) ? ' class="debug-layout"' : '';
+	$javascriptDisabled = ! empty( $content[ 'disable_javascript' ] ) ? '<!-- Test mode: Javascript disabled -->' : '';
+
 	$secretWords = array ( 'flower', 'fruit', 'sun', 'moon', 'sea', 'salt', 'valley', 'water', 'fire',
 		'smoke', 'frog', 'well', 'tea', 'green' );
 	$secretWordMax = count( $secretWords ) - 1;
@@ -47,18 +51,21 @@
 	<link rel="stylesheet" href="<?php echo $path; ?>pure-extract.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" href="<?php echo $path; ?>pwm.css" />
-	<script type="text/javascript" src="<?php echo $path; ?>jquery-1.11.3.min.js"></script>
-	<script type="text/javascript" src="<?php echo $path; ?>jquery-ui.easing.min.js"></script>
-	<?php echo ! empty( $content[ 'enable_clipboard' ] )
+	<?php echo ! $javascriptDisabled ?
+	'<script type="text/javascript" src="' . $path . 'jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="' . $path . 'jquery-ui.easing.min.js"></script>
+	' . ( ! empty( $content[ 'enable_clipboard' ] )
 		? '<script type="text/javascript" src="' . $path . 'jquery.zeroclipboard.min.js"></script>
-' : '' ?>
-	<script type="text/javascript" src="<?php echo $path; ?>pwm.js"></script>
+' : '' ) .
+'	<script type="text/javascript" src="' . $path . 'pwm.js"></script>'
+	: $javascriptDisabled ?>
+
 	<link rel="icon" href="<?php echo $path; ?>favicon.ico" />
 	<meta name="description" content="Open source Password Manager web application written in PHP by Owen Maule in early May 2015, as a demonstration of competency for a job interview." />
 	<meta name="author" content="Owen Maule <o@owen-m.com>" />
 	<meta name="copyright" content="Copyright Owen Maule 2015" />
 </head>
-<body>
+<body<?php echo $debugLayout; ?>>
 	<header>
 		<div id="alert" role="alert"><?php
 				foreach( $content[ 'alert' ] as $message => $type )
@@ -112,10 +119,13 @@
 		</p>
 	</footer>
 
-	<script type="text/javascript">
-		var debugToConsole = <?php echo ( 'console' === $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>,
-			appLocation = "<?php echo ! empty( $content[ 'abs_path' ] ) ? $content[ 'abs_path' ] : '' ?>",
-			enableClipboard = <?php echo ( ! empty( $content[ 'enable_clipboard' ] ) ? 'true' : 'false' ) ?>;
+	<?php echo ! $javascriptDisabled ? 
+	'<script type="text/javascript">
+		var debugToConsole = ' . ( 'console' === $content[ 'alert_debug' ] ? 'true' : 'false' ) . ',
+			appLocation = "' . ( ! empty( $content[ 'abs_path' ] ) ? $content[ 'abs_path' ] : '' ) . '",
+			enableClipboard = ' . ( empty( $content[ 'disable_clipboard' ] ) ? 'true' : 'false' ) . ';
 	</script>
+' : $javascriptDisabled ?>
+
 </body>
 </html>
