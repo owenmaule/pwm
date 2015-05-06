@@ -64,8 +64,6 @@ Best wishes, Owen Maule
 This is primarily kept in the header of pwm.php - I will try to keep this README in sync with that.
 
 ##To do
-	Specify links/form actions relative to the application
-	Finish off: reset password
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
 	Missing functionality: password confirmation, password generation,
