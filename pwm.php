@@ -982,8 +982,8 @@ CREATE TABLE `pwm`.`entries` (
 				'INSERT INTO ' . $this->pwmTable . ' (user_id, label, username, password, url, notes) VALUES (?, ?, ?, ?, ?, ?)' );
 			$query->execute( array ( $_SESSION[ 'user_id' ], $entry[ 'label' ], $entry[ 'username' ],
 				$entry[ 'password' ], $entry[ 'url' ], $entry[ 'notes' ] ) );
-			$_SESSION[ 'selected' ] = $this->database->lastInsertId();
-			$this->alert( 'Created entry ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
+			$_SESSION[ 'selected' ] = $this->selected = $this->database->lastInsertId();
+			$this->alert( 'Created entry: ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
 		} else {
 			$entry_id = $entry[ 'entry_id' ];
 			if( ! $this->entryIsMine( $entry_id ) )
@@ -995,7 +995,7 @@ CREATE TABLE `pwm`.`entries` (
 				'UPDATE ' . $this->pwmTable . ' SET label = ?, username = ?, password = ?, url = ?, notes = ? WHERE entry_id = ?' );
 			$query->execute( array ( $entry[ 'label' ], $entry[ 'username' ],
 				$entry[ 'password' ], $entry[ 'url' ], $entry[ 'notes' ], $entry_id ) );
-			$this->alert( 'Updated entry', ALERT_NOTE );
+			$this->alert( 'Updated entry: ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
 		}
 		return true;
 	}
