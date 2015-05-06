@@ -1,34 +1,44 @@
+# Restrict access by IP address
+#<Limit GET POST>
+#	order deny,allow
+#	deny from all
+
+	# LAN if you host pwm on your local network
+#	allow from 192.168.0.1/24
+#	allow from 10.0.0.1/24
+	# Your Internet IP address http://www.whatsmyip.org/
+#	allow from YOUR_IP_ADDRESS
+#	allow from YOUR_FRIENDS_IP_ADDRESS
+#</Limit>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
     Options +FollowSymlinks
 
+	# Enable to enforce https
 #    RewriteCond %{HTTPS} !=on
 #    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-	
+
+	# File or directory
+	RewriteCond %{REQUEST_FILENAME} -f
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^(.+)$ $1 [QSA,L]
+
+	# Auth
 	RewriteRule ^auth$ index.php [L]
 	RewriteRule ^change$ index.php?auth=Change [L]
 	RewriteRule ^logout$ index.php?auth=Logout [L]
-
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^reset/(.+)$ index.php?path_up=1&auth=Reset&reset=$1 [L]
 
+	# pwm
 	RewriteRule ^edit$ index.php [L]
 	RewriteRule ^new$ index.php?new=New [L]
 	RewriteRule ^select$ index.php [L]
 	RewriteRule ^search$ index.php [L]
 	RewriteRule ^([0-9]+)$ index.php?selected=$1 [L]
-
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^search/(.+)$ index.php?path_up=1&search=$1 [L]
-
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^entry/(.+)$ index.php?path_up=1&selected=$1 [L]
 
 	# To do: Select by label
-#	RewriteCond %{REQUEST_FILENAME} !-f
-#	RewriteCond %{REQUEST_FILENAME} !-d
 #	RewriteRule ^label/(.+)$ index.php?path_up=1&label=$1 [L]
 </IfModule>
