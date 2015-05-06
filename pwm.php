@@ -24,20 +24,24 @@
 	To do:
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
-	Missing functionality: password confirmation, password generation, password security analysis, limit failed logins
+	Missing functionality: password confirmation, password generation,
+		password security analysis, limit failed logins
 	Back-end support: FULLTEXT, SQLlite
 
 	Template (default theme) to do:
 	Front-end Javascript enhancements
 	Missing client functionality: show/hide password, copy to clipboard, open website
-	Continue searching for the owner of the image and check permission. ( I expect it's okay, it's Tux and GPL software. )
+	Continue searching for the owner of the image and check permission.
+		( I expect it's okay, it's Tux and GPL software. )
 */
 
 define( 'NL', "\n" );
 define( 'RN', "\r\n" );
 define( 'BR', '<br />' . NL );
 
-define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' ); # Invalid in indentifier, for use in PCRE regex
+# Invalid in indentifier, for use in PCRE regex
+define( 'SQL_INVALID_CHARS', '\'"`~\!%\^&\(\)\-\{\}\\\\' );
+
 define( 'TIME_FORMAT', 'l jS \of F Y h:i:s A' );
 define( 'TOKEN_DELIM', '-' );
 
@@ -65,7 +69,7 @@ class pwm
 	public $content = array (
 		'title' => '',
 		'menu' => array ( ),
-		'alert' => array ( ), #'extra1' => ALERT_DEBUG, 'extra2' => ALERT_DEBUG, 'extra3' => ALERT_DEBUG, 'extra4' => ALERT_DEBUG, 'extra5' => ALERT_DEBUG, 'extra6' => ALERT_DEBUG ),
+		'alert' => array ( ),
 		'main' => '<p>An error has occurred.</p>',
 		'rel_path' => '',
 	);
@@ -102,14 +106,15 @@ class pwm
 			header( 'Strict-Transport-Security: max-age=31536000' );
 		}
 
-		if( empty( $config[ 'dsn' ] ) || ! isset( $config[ 'db_user' ] ) || ! isset( $config[ 'db_password' ] ) )
+		if( empty( $config[ 'dsn' ] ) || ! isset( $config[ 'db_user' ] )
+			|| ! isset( $config[ 'db_password' ] ) )
 		{
 			throw new Exception ( 'Missing database configuration' );
 		}
 
 		try {
 			$this->database = new PDO( $config[ 'dsn' ], $config[ 'db_user' ], $config[ 'db_password' ],
-				array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+				array ( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 					PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC )
 			);
 		} catch ( Exception $e )
@@ -224,7 +229,8 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$fullTableName = $this->config[ $tableConfig ];
 
-		# Check the table name format - I think I may be getting paranoid - or just really helpful to integrators
+		# Check the table name format - I think I may be getting paranoid
+		# - or just really helpful to integrators
 		$parts = explode( '.', $fullTableName );
 		$databaseName = count( $parts ) > 1
 			? preg_replace('/[' . SQL_INVALID_CHARS . ']/', '', current( $parts ) )
@@ -250,17 +256,20 @@ CREATE TABLE `pwm`.`entries` (
 			}
 
 			try {
-				$this->database->exec( 'CREATE TABLE IF NOT EXISTS ' . $fullTableName . ' ' . $tableDefinition );
+				$this->database->exec( 'CREATE TABLE IF NOT EXISTS ' . $fullTableName . ' '
+					. $tableDefinition );
 			}
 			catch ( Exception $e )
 			{
-				return 'Unable to create database table ' . $fullTableName . ' (' . $tableConfig . ') - exception';
+				return 'Unable to create database table ' . $fullTableName . ' (' . $tableConfig
+					. ') - exception';
 			}
 	
 			# In case not set to throw exceptions - check again
 			if( ! $this->tableExists( $fullTableName ) )
 			{
-				return 'Unable to create database table ' . $fullTableName . ' (' . $tableConfig . ') - rechecked';
+				return 'Unable to create database table ' . $fullTableName . ' (' . $tableConfig
+					. ') - rechecked';
 			}
 		}
 		return true;
@@ -293,7 +302,7 @@ CREATE TABLE `pwm`.`entries` (
 	
 	public function testAlerts()
 	{
-		foreach( array( ALERT_ERROR, ALERT_NOTE, ALERT_DENIED, ALERT_DEBUG, ALERT_WARNING )
+		foreach( array ( ALERT_ERROR, ALERT_NOTE, ALERT_DENIED, ALERT_DEBUG, ALERT_WARNING )
 			as $alert )
 		{
 			$this->alert( ucwords( $alert ) . ': Test alert colours', $alert );
@@ -386,8 +395,9 @@ CREATE TABLE `pwm`.`entries` (
 					$subtraction += 256;
 				}
 				$decryptedChar = chr( $subtraction );
-#				$this->alert( '[' . $loop . ']: ' . ( (int) $binaryData[ $loop ] ) . ' [' . $keyLoop . ']: '
-#					. chr( $key[ $keyLoop ] ) . ' char: ' . $decryptedChar, ALERT_DEBUG );
+#				$this->alert( '[' . $loop . ']: ' . ( (int) $binaryData[ $loop ] )
+#					. ' [' . $keyLoop . ']: ' . chr( $key[ $keyLoop ] ) . ' char: ' . $decryptedChar,
+#					ALERT_DEBUG );
 				$decrypted .= $decryptedChar;
 				if( ++$keyLoop == $keyLength )
 				{
@@ -437,8 +447,8 @@ CREATE TABLE `pwm`.`entries` (
 			if( $user && $login_password )
 			{
 				# Security check
-				$query = $this->database->prepare(
-					'SELECT user_id, user_password FROM ' . $this->authTable . ' where user_email = ? ORDER BY user_id LIMIT 1' );
+				$query = $this->database->prepare( 'SELECT user_id, user_password FROM '
+					. $this->authTable . ' where user_email = ? ORDER BY user_id LIMIT 1' );
 				$query->execute( array ( $user ) );
 				$result = $query->fetch();
 				if( false == $result || empty( $result[ 'user_password' ] ) )
@@ -468,7 +478,7 @@ CREATE TABLE `pwm`.`entries` (
 
 	public function logOut()
 	{
-		$_SESSION = array( );
+		$_SESSION = array ( );
 		$this->alert( 'Logged out', ALERT_NOTE );
 	}
 	
@@ -494,7 +504,8 @@ CREATE TABLE `pwm`.`entries` (
 		}
 		$user = $_POST[ 'user' ];
 
-		$query = $this->database->prepare( 'SELECT user_id FROM ' . $this->authTable . ' WHERE user_email = ? LIMIT 1' );
+		$query = $this->database->prepare( 'SELECT user_id FROM ' . $this->authTable
+			. ' WHERE user_email = ? LIMIT 1' );
 		$query->execute( array ( $user ) );
 		$result = $query->fetch();
 		if( false != $result )
@@ -542,9 +553,11 @@ CREATE TABLE `pwm`.`entries` (
 			$this->alert( 'Password encryption error', ALERT_ERROR );
 			return false;
 		}
-		$query = $this->database->prepare( 'INSERT INTO ' . $this->authTable . ' (user_email, user_password) VALUES (?, ?)' );
+		$query = $this->database->prepare( 'INSERT INTO ' . $this->authTable
+			. ' (user_email, user_password) VALUES (?, ?)' );
 		$query->execute( array ( $user, $hash ) );
-		$this->alert( 'Created user: ' . htmlspecialchars( $user ) . ' password: ' . $login_password, ALERT_DEBUG );
+		$this->alert( 'Created user: ' . htmlspecialchars( $user ) . ' password: ' . $login_password,
+			ALERT_DEBUG );
 		# to do: email validation link
 		# login
 		$query = $this->database->prepare(
@@ -633,8 +646,8 @@ CREATE TABLE `pwm`.`entries` (
 			$subToken = substr( $token, $dashPos + 1 );
 			$this->alert( 'User=' . $user_id . ' subToken=' . $subToken, ALERT_DEBUG );
 
-			$query = $this->database->prepare(
-				'SELECT user_email, user_password FROM ' . $this->authTable . ' where user_id = ? ORDER BY user_id LIMIT 1' );
+			$query = $this->database->prepare( 'SELECT user_email, user_password FROM ' . $this->authTable
+				. ' where user_id = ? ORDER BY user_id LIMIT 1' );
 			$query->execute( array ( $user_id ) );
 			$result = $query->fetch();
 			if( false == $result
@@ -711,8 +724,8 @@ CREATE TABLE `pwm`.`entries` (
 			return false;
 		}
 		$user = $_POST[ 'user' ];
-		$query = $this->database->prepare(
-			'SELECT user_id, user_password FROM ' . $this->authTable . ' where user_email = ? ORDER BY user_id LIMIT 1' );
+		$query = $this->database->prepare( 'SELECT user_id, user_password FROM ' . $this->authTable
+			. ' where user_email = ? ORDER BY user_id LIMIT 1' );
 		$query->execute( array ( $user ) );
 		$result = $query->fetch();
 		if( false == $result || empty( $result[ 'user_id' ] ) || empty( $result[ 'user_password' ] ) )
@@ -734,7 +747,8 @@ CREATE TABLE `pwm`.`entries` (
 		# Test decrypt
 		$rawToken2 = $this->SymmetricDecrypt( $subToken, $passwordHash );
 		$this->alert( 'Decrypted rawToken=' . $rawToken2, ALERT_DEBUG );
-		$this->alert( 'Symmetric en/decryption is' . ( $rawToken != $rawToken2 ? ' NOT' : '' ) . ' working', ALERT_DEBUG );
+		$this->alert( 'Symmetric en/decryption is' . ( $rawToken != $rawToken2 ? ' NOT' : '' )
+			. ' working', ALERT_DEBUG );
 
 		# Send email
 		$adminEmail = isset( $this->config[ 'admin_email' ] ) ? $this->config[ 'admin_email' ] : '';
@@ -760,7 +774,8 @@ CREATE TABLE `pwm`.`entries` (
 			. '' . NL
 			. 'To reset your password follow this link: ' . $resetLink . NL
 			. '' . NL			
-			. 'This reset token is valid for ' . ( $resetTimer / 60.0 ) . ' minutes from ' . date( TIME_FORMAT, $time ) . NL,
+			. 'This reset token is valid for ' . ( $resetTimer / 60.0 ) . ' minutes from '
+				. date( TIME_FORMAT, $time ) . NL,
 			$headers ) )
 		{
 			$this->alert( 'Failed to send email to ' . $user, ALERT_ERROR );
@@ -828,7 +843,8 @@ CREATE TABLE `pwm`.`entries` (
 		if( ! $this->loggedIn || $changePassword )
 		{
 			$main = '
-<form id="auth-form" name="auth" action="' . $this->content[ 'rel_path' ] . 'auth" method="post" class="pure-form">';
+<form id="auth-form" name="auth" action="' . $this->content[ 'rel_path' ] . 'auth" method="post" '
+				. 'class="pure-form">';
 
 			$setButton = AUTH_CHANGE;
 			if( $this->canResetPassword )
@@ -841,9 +857,11 @@ CREATE TABLE `pwm`.`entries` (
 
 			# Login / Register / Change / Reset password
 			$main .= '
-		<label for="user">E-mail address: </label><input type="text" id="user" name="user" value="' . $_SESSION[ 'user' ] . '" '
+		<label for="user">E-mail address: </label><input type="text" id="user" name="user" value="'
+				. $_SESSION[ 'user' ] . '" '
 				. ( $changePassword ? 'readonly="readonly" ' : '' ) . '/><br />
-		<label for="login-password">Password: </label><input type="password" id="login-password" name="login_password" value="" />
+		<label for="login-password">Password: </label><input type="password" id="login-password" '
+				. 'name="login_password" value="" />
 		<div class="button-bar">';
 
 			if( $changePassword )
@@ -877,12 +895,13 @@ CREATE TABLE `pwm`.`entries` (
 		$searchQuery = '';
 		if( $search )
 		{
-			$searchQuery = ' AND ( label LIKE :search OR username LIKE :search OR password LIKE :search OR url LIKE :search OR notes LIKE :search )';
+			$searchQuery = ' AND ( label LIKE :search OR username LIKE :search OR password LIKE :search '
+				. 'OR url LIKE :search OR notes LIKE :search )';
 			$queryParams[ 'search' ] = '%' . $search . '%';
 		}
 		
-		$query = $this->database->prepare(
-			'SELECT entry_id, label FROM ' . $this->pwmTable . ' WHERE user_id = :user_id' . $searchQuery . ' ORDER BY label' );
+		$query = $this->database->prepare( 'SELECT entry_id, label FROM ' . $this->pwmTable
+			. ' WHERE user_id = :user_id' . $searchQuery . ' ORDER BY label' );
 		$query->execute( $queryParams );
 		$result = $query->fetchAll();
 		if( false != $result )
@@ -893,7 +912,8 @@ CREATE TABLE `pwm`.`entries` (
 
 	public function entryIsMine( $selected )
 	{
-		$query = $this->database->prepare( 'SELECT user_id FROM ' . $this->pwmTable . ' where entry_id = ? LIMIT 1' );
+		$query = $this->database->prepare( 'SELECT user_id FROM ' . $this->pwmTable
+			. ' where entry_id = ? LIMIT 1' );
 		$query->execute( array ( $selected ) );
 		$result = $query->fetch();
 		if( false == $result )
@@ -954,7 +974,8 @@ CREATE TABLE `pwm`.`entries` (
 		{
 			return false;
 		}
-		$query = $this->database->prepare( 'SELECT * FROM ' . $this->pwmTable . ' where entry_id = ? LIMIT 1' );
+		$query = $this->database->prepare( 'SELECT * FROM ' . $this->pwmTable
+			. ' where entry_id = ? LIMIT 1' );
 		$query->execute( array ( $selected ) );
 		$result = $query->fetch();
 		$this->entry = $result;
@@ -981,8 +1002,8 @@ CREATE TABLE `pwm`.`entries` (
 		{
 			# Insert entry
 			$user_id = $_SESSION[ 'user_id' ];
-			$query = $this->database->prepare(
-				'INSERT INTO ' . $this->pwmTable . ' (user_id, label, username, password, url, notes) VALUES (?, ?, ?, ?, ?, ?)' );
+			$query = $this->database->prepare( 'INSERT INTO ' . $this->pwmTable
+				. ' (user_id, label, username, password, url, notes) VALUES (?, ?, ?, ?, ?, ?)' );
 			$query->execute( array ( $_SESSION[ 'user_id' ], $entry[ 'label' ], $entry[ 'username' ],
 				$entry[ 'password' ], $entry[ 'url' ], $entry[ 'notes' ] ) );
 			$_SESSION[ 'selected' ] = $this->selected = $this->database->lastInsertId();
@@ -994,8 +1015,8 @@ CREATE TABLE `pwm`.`entries` (
 				return false;
 			}
 			# Update entry
-			$query = $this->database->prepare(
-				'UPDATE ' . $this->pwmTable . ' SET label = ?, username = ?, password = ?, url = ?, notes = ? WHERE entry_id = ?' );
+			$query = $this->database->prepare( 'UPDATE ' . $this->pwmTable
+				. ' SET label = ?, username = ?, password = ?, url = ?, notes = ? WHERE entry_id = ?' );
 			$query->execute( array ( $entry[ 'label' ], $entry[ 'username' ],
 				$entry[ 'password' ], $entry[ 'url' ], $entry[ 'notes' ], $entry_id ) );
 			$this->alert( 'Updated ' . htmlspecialchars( $entry[ 'label' ] ), ALERT_NOTE );
@@ -1115,7 +1136,8 @@ CREATE TABLE `pwm`.`entries` (
 
 		$newEntry = isset( $_POST[ 'new' ] ) || isset( $_GET[ 'new' ] ) || ! $this->selected;
 
-		$this->alert( 'Search: ' . htmlspecialchars( $search ) . ' Selected: ' . (int) $this->selected, ALERT_DEBUG );
+		$this->alert( 'Search: ' . htmlspecialchars( $search ) . ' Selected: '
+			. (int) $this->selected, ALERT_DEBUG );
 
 		if( $newEntry || ! $this->loadEntry( $this->selected ) )
 		{
@@ -1126,16 +1148,19 @@ CREATE TABLE `pwm`.`entries` (
 		$_SESSION[ 'selected' ] = $this->selected;
 
 		$main = 
-'		<form id="search-form" action="' . $this->content[ 'rel_path' ] . 'search" method="post" class="pure-form">
+'		<form id="search-form" action="' . $this->content[ 'rel_path' ]
+			. 'search" method="post" class="pure-form">
 			<div class="textinput-bar">
-				<input type="text" id="search" name="search" value="' . htmlspecialchars( $search ) . '" placeholder="Search" />
+				<input type="text" id="search" name="search" value="'
+				. htmlspecialchars( $search ) . '" placeholder="Search" />
 				<span class="nowrap">
 					<input type="submit" id="search-button" value="Search"  />
 					<input type="submit" name="reset" value="X" />
 				</span>
 			</div>
 		</form>
-		<form id="selector-form" action="' . $this->content[ 'rel_path' ] . 'select" method="post" class="pure-form">
+		<form id="selector-form" action="'
+			. $this->content[ 'rel_path' ] . 'select" method="post" class="pure-form">
 			<select id="selector" name="selected" size="5">
 ';
 
@@ -1146,7 +1171,8 @@ CREATE TABLE `pwm`.`entries` (
 			$entry_id = $entry[ 'entry_id' ];
 			$label = $entry[ 'label' ];
 			$main .= 
-'					<option value="' . $entry_id . '" title="' . $label . '"' . ( $entry_id == $this->selected ? ' selected="selected"' : '' ) . '>'
+'					<option value="' . $entry_id . '" title="' . $label . '"'
+				. ( $entry_id == $this->selected ? ' selected="selected"' : '' ) . '>'
 				. $label . '</option>';
 		}
 
@@ -1162,19 +1188,26 @@ CREATE TABLE `pwm`.`entries` (
 			</select>
 			<div id="selector-buttons" class="button-bar">
 				<input id="select-entry" type="submit" value="Select" />
-				<input type="submit"' . ( ! (int) $this->selected ? ' class="hidden"' : '' )  . ' name="new" value="New" />
+				<input type="submit"' . ( ! (int) $this->selected ? ' class="hidden"' : '' )
+				. ' name="new" value="New" />
 			</div>
 		</form>
-		<form id="entry-form" action="' . $this->content[ 'rel_path' ] . 'edit" method="post" class="pure-form">
+		<form id="entry-form" action="' . $this->content[ 'rel_path' ]
+			. 'edit" method="post" class="pure-form">
 			<input type="hidden" name="entry_id" value="' . $this->selected . '" />
-			<label for="label">Label: </label><input type="text" id="label" name="label" value="' . $this->entry[ 'label' ] . '" />
-			<label for="username">Username: </label><input type="text" id="username" name="username" value="' . $this->entry[ 'username' ] . '" />
-			<label for="password">Password: </label><input type="text" id="password" name="password" value="' . $this->entry[ 'password' ] . '" />
-			<label for="url">Web address: </label><input type="text" id="url" name="url" value="' . $this->entry[ 'url' ] . '" />
+			<label for="label">Label: </label><input type="text" id="label" name="label" value="'
+			. $this->entry[ 'label' ] . '" />
+			<label for="username">Username: </label><input type="text" id="username" name="username" '
+			. 'value="' . $this->entry[ 'username' ] . '" />
+			<label for="password">Password: </label><input type="text" id="password" name="password" '
+			. 'value="' . $this->entry[ 'password' ] . '" />
+			<label for="url">Web address: </label><input type="text" id="url" name="url" value="'
+			. $this->entry[ 'url' ] . '" />
 			<label for="notes" class="textarea-label">Notes: </label><br />
 			<textarea id="notes" name="notes">' . $this->entry[ 'notes' ] . '</textarea>
 			<div class="button-bar">
-				<input type="submit" name="edit" value="' . ( $newEntry ? ENTRY_CREATE : ENTRY_UPDATE ) . '"  />
+				<input type="submit" name="edit" value="' . ( $newEntry ? ENTRY_CREATE : ENTRY_UPDATE )
+				. '"  />
 				<input type="submit" name="edit" value="' . ENTRY_DELETE . '"  />
 			</div>
 		</form>';
