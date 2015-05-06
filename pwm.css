@@ -90,6 +90,9 @@ span.alert-note {
 span.alert-debug {
 	background-color: #f7dc97;
 }
+span.alert-warn {
+	background-color: Gold;
+}
 
 header div.logo-mount {
 	float: right;
