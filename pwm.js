@@ -33,7 +33,7 @@ $( function() {
 	
 	// Dismiss the alerts
 	$( "#alert span" ).dblclick( function() {
-		$( this ).hide();
+		$( this ).fadeOut( 600 );
 	} );
 
 	// Ahhh Ninja!
@@ -41,9 +41,16 @@ $( function() {
 		.bind( "dragstart", function( e ) {
 			e.preventDefault();
 		} )
-		.dblclick( function() {
-			$( this ).hide();
+		.click( function() {
+			$( this ).css( "z-index", 3 )
+				.animate( { right: "-100px", opacity: 0 }, 3600, function() {
+					$( this ).hide();
+				} )
 		} );
+
+	// Overlap more things
+	$( "nav.pure-menu" ).css( "z-index", 0 );
+	$( "form#entry-form input[type=text]" ).css( "z-index", 0 );
 
 	$( "#selector" ).click( function() {
 		// Very basic solution, will be improved to make an asynchronous call to json feed
