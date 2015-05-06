@@ -18,6 +18,10 @@
 
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
+	
+	----
+	To do: Have a look at form inputs' max-widths, can simplify
+	There is a mysterious 1 pixel issue on the label, with JS disabled and a certain screen width, only happens in debug_layout
 */
 
 /* Layout sections */
@@ -26,7 +30,7 @@ body {
 	padding: 8px;
 	color: #666666;
 	font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
-	max-width: 700px;
+	max-width: 800px; /* Increase this to 1024px. Requires reworking entry form */
 	margin: 0 auto;
 	background-color: HoneyDew;
 }
@@ -55,8 +59,12 @@ nav.pure-menu {
 
 div#main {
 	margin-bottom: 16px;
-/*	outline: 1px solid Blue; */
 }
+
+/*
+.debug-layout div#main {
+	outline: 1px solid Blue;
+} */
 
 footer {
 	clear: both;
@@ -114,6 +122,7 @@ header img.logo {
 header img.logo:hover {
 	z-index: 2;
 	opacity: .8;
+	cursor: no-drop;
 }
 
 h1, h2 {
@@ -292,20 +301,90 @@ form#entry-form label {
 	width: 110px;
 }
 
+/* This specific width needs specific selector to override - try to do it without? */
+form#entry-form input[type=text],
+form#entry-form input[type=password],
+form#entry-form .compress-field {
+	width: 450px;
+}
+
 form#entry-form input[type=text],
 form#entry-form input[type=password] {
 	min-width: 200px;
-	width: 365px;
 	z-index: 1;
+}
+
+.compress-field
+{
+	display: inline-block;
+}
+
+/*
+.debug-layout .compress-field {
+	outline: 1px solid Blue; 
+} */
+
+/* Without Javascript enabled, the 2 button becomes 1 and the 1 becomes 0 - take off the Copy button
+Button 1 is always the Copy */
+
+.compress-field input[type=submit] {
+	display: none;
+}
+
+.js-enable .compress-field input[type=submit],
+.compress-field input[type=submit].button2 {
+	display: block;
+	position: absolute;
+	right: 0;
+	top: -1px;
+	margin: 0;
+	width: 60px;
+}
+
+.js-enable .compress-field input[type=submit].button2 {
+	right: 64px;
+}
+
+.js-enable .compress-field,
+.compress-field.two-button {
+	position: relative;
+	box-sizing: border-box;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing: border-box;
+	width: 365px;
+	margin-bottom: 8px;
+	padding-right: 64px;
+	min-width: 264px;
+}
+
+.js-enable .compress-field.two-button {
+	padding-right: 128px;
+}
+
+.debug-layout.js-enable .compress-field,
+.debug-layout .compress-field.two-button {
+	outline: 2px solid Red;
+}
+
+/* Requires form#entry-form to override specified width, will try to remove that width */
+.js-enable form#entry-form .compress-field input[type=text],
+/* .js-enable form#entry-form .compress-field input[type=password], */ 
+form#entry-form .compress-field.two-button input[type=text],
+form#entry-form .compress-field.two-button input[type=password] {
+	position: static;
+	margin: 0;
+	width: 100%;
+/*	min-width: 0; */
 }
 
 form#entry-form textarea {
 	min-width: 190px;
 	margin: 0 8px 8px 0;
-	width: 483px;
+	width: 100%;
+	max-width: 567px;
 }
 
-@media only screen and ( max-width: 727px )
+@media only screen and ( max-width: 800px )
 {
 	form#auth-form label {
 		display: block;
@@ -325,7 +404,8 @@ form#entry-form textarea {
 
 	form#entry-form label {
 		text-align: left;
-		width: auto;
+/*		width: auto; */
+		width: 100%;
 		margin: 0;
 	}
 
@@ -334,7 +414,13 @@ form#entry-form textarea {
 	form#entry-form textarea {
 		display: block;
 		width: 100%;
-		margin-bottom: 4px;
+		margin-bottom: 4px; /* ? */
+	}
+
+	/* Requires form#entry-form to override specified width, will try to remove that width */
+	form#entry-form .compress-field {
+		display: block;
+		width: 100%;
 	}
 
 	form#entry-form textarea {
@@ -342,7 +428,7 @@ form#entry-form textarea {
 	}
 }
 
-@media only screen and ( max-width: 457px )
+@media only screen and ( max-width: 640px )
 {
 	select#selector {
 		width: 100%;
