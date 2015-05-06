@@ -21,19 +21,20 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.	
 */
 
-$path = ! empty( $content[ 'rel_path' ] ) ? $content[ 'rel_path' ] :
-	( ! empty( $_GET[ 'path_up' ] ) ? '../' : '' );
+	$path = ! empty( $content[ 'rel_path' ] ) ? $content[ 'rel_path' ] :
+		( ! empty( $_GET[ 'path_up' ] ) ? '../' : '' );
 
-$secretWords = array ( 'flower', 'fruit', 'sun', 'moon', 'sea', 'salt', 'valley', 'water', 'fire',
-	'smoke', 'frog', 'well', 'tea', 'green' );
-$secretWordCount = count( $secretWords );
-$ninjaSecret1 = $secretWords[ mt_rand( 0, $secretWordCount - 1 ) ];
+	$secretWords = array ( 'flower', 'fruit', 'sun', 'moon', 'sea', 'salt', 'valley', 'water', 'fire',
+		'smoke', 'frog', 'well', 'tea', 'green' );
+	$secretWordMax = count( $secretWords ) - 1;
 
-do {
-	$ninjaSecret2 = $secretWords[ mt_rand( 0, $secretWordCount - 1 ) ];
-} while( $ninjaSecret1 == $ninjaSecret2 );
+	$ninjaSecret1 = $secretWords[ mt_rand( 0, $secretWordMax ) ];
 
-$ninjaSecret = $ninjaSecret1 . '-' . $ninjaSecret2;
+	do {
+		$ninjaSecret2 = $secretWords[ mt_rand( 0, $secretWordMax ) ];
+	} while( $ninjaSecret1 == $ninjaSecret2 );
+
+	$ninjaSecret = $ninjaSecret1 . '-' . $ninjaSecret2;
 
 ?>
 <!DOCTYPE html>
@@ -47,10 +48,13 @@ $ninjaSecret = $ninjaSecret1 . '-' . $ninjaSecret2;
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" href="<?php echo $path; ?>pwm.css" />
 	<script type="text/javascript" src="<?php echo $path; ?>jquery-1.11.3.min.js"></script>
+	<?php echo ! empty( $content[ 'enable_clipboard' ] )
+		? '<script type="text/javascript" src="' . $path . 'jquery.zeroclipboard.min.js"></script>
+' : '' ?>
 	<script type="text/javascript" src="<?php echo $path; ?>pwm.js"></script>
 	<link rel="icon" href="<?php echo $path; ?>favicon.ico" />
-	<meta name="description" content="Open source Password Manager web application written in PHP by Owen Maule as a demonstration of competency for a job interview." />
-	<meta name="author" content="Owen Maule" />
+	<meta name="description" content="Open source Password Manager web application written in PHP by Owen Maule in early May 2015, as a demonstration of competency for a job interview." />
+	<meta name="author" content="Owen Maule <o@owen-m.com>" />
 	<meta name="copyright" content="Copyright Owen Maule 2015" />
 </head>
 <body>
@@ -97,19 +101,20 @@ $ninjaSecret = $ninjaSecret1 . '-' . $ninjaSecret2;
 	</div>
 	<footer>
 		<p>Developed as a competency test in early May 2015<br />
-		&copy; Copyright <a href="http://owen-m.com/" target="_blank">Owen Maule</a> 2015
-		<span class="nowrap">&lt;<a href="mailto:o@owen-m.com">o@owen-m.com</a>&gt;</span><br />
-		Latest version on <a href="https://github.com/owenmaule/pwm" target="_blank">GitHub</a>
-	</p>
-	<p class="license">This software comes with ABSOLUTELY NO WARRANTY<br />
-		It is <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="nofollow" target="_blank">free software</a>, and you are welcome to modify and redistribute it
-		under certain conditions
-	</p>
+			&copy; Copyright <a href="http://owen-m.com/" target="_blank">Owen Maule</a> 2015
+			<span class="nowrap">&lt;<a href="mailto:o@owen-m.com">o@owen-m.com</a>&gt;</span><br />
+			Latest version on <a href="https://github.com/owenmaule/pwm" target="_blank">GitHub</a>
+		</p>
+		<p class="license">This software comes with ABSOLUTELY NO WARRANTY<br />
+			It is <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="nofollow" target="_blank">free software</a>, and you are welcome to modify and redistribute it
+			under certain conditions
+		</p>
 	</footer>
 
 	<script type="text/javascript">
 		var debugToConsole = <?php echo ( 'console' === $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>,
-			appLocation = "<?php echo ! empty( $content[ 'abs_path' ] ) ? $content[ 'abs_path' ] : '' ?>";
+			appLocation = "<?php echo ! empty( $content[ 'abs_path' ] ) ? $content[ 'abs_path' ] : '' ?>",
+			enableClipboard = <?php echo ( ! empty( $content[ 'enable_clipboard' ] ) ? 'true' : 'false' ) ?>;
 	</script>
 </body>
 </html>
