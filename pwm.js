@@ -48,7 +48,7 @@ $( function() {
 				} )
 		} );
 
-	// Overlap more things
+	// Overlap more elements
 	$( "nav.pure-menu" ).css( "z-index", 0 );
 	$( "form#entry-form input[type=text]" ).css( "z-index", 0 );
 
@@ -57,4 +57,15 @@ $( function() {
 		location.href = appLocation + 'entry/' + $( this ).val();
 	} );
 	$( "#select-entry" ).hide();
+
+	if( enableClipboard )
+	{
+		$( "body" ).on( "copy", "#entry-form input[type=text], #entry-form input[type=password]", function( e ) {
+			var textToCopy = $( this ).val() ? $( this ).val() : "nothing";
+			console.log( 'Clipboard copy: ' + textToCopy );
+
+			e.clipboardData.setData( "text/plain", textToCopy );
+			e.preventDefault();
+		} );
+	}
 } );
