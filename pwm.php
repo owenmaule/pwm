@@ -856,10 +856,10 @@ CREATE TABLE `pwm`.`entries` (
 			}
 
 			# Login / Register / Change / Reset password
+			$user = ! empty( $_SESSION[ 'user' ] ) ? $_SESSION[ 'user' ] : '';
 			$main .= '
 		<label for="user">E-mail address: </label><input type="text" id="user" name="user" value="'
-				. $_SESSION[ 'user' ] . '" '
-				. ( $changePassword ? 'readonly="readonly" ' : '' ) . '/><br />
+				. $user . '" ' . ( $changePassword ? 'readonly="readonly" ' : '' ) . '/><br />
 		<label for="login-password">Password: </label><input type="password" id="login-password" '
 				. 'name="login_password" value="" />
 		<div class="button-bar">';
