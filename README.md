@@ -33,6 +33,10 @@ Similar products are <a href="http://keepass.info/" rel="nofollow" target="_blan
 <pre><code>
 	'debug_messages' => true,
 </code></pre>
+If you prefer you can route the debug messages to the browser console, with a special value of 'debug_messages', however in this case be careful to remember to disable this again, as debug messages can potentially contain sensitive information that threaten the security of the system.
+<pre><code>
+	'debug_messages' => 'console',
+</code></pre>
 Please try to solve issues yourself by searching online or asking a friend or colleague, however if you are really stuck you may email me at o@owen-m.com and I will try to offer timely support (no promises).
 7. If you have HTTPS support, <b>first test that it's working by using the application with https:// in the URL</b>. If that's working, you can enable 'enforce_https' in config.php which will give you much needed over-the-wire security for your users' precious password data.
 <pre><code>
