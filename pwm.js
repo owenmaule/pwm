@@ -78,8 +78,8 @@ $( function() {
 		if( ! backgroundFading )
 		{
 			backgroundFading = true;
-			$( "body" ).animate( { backgroundColor: CRIMSON }, 50, "easeInCirc" )
-				.animate( { backgroundColor: defaultBackgroundColour }, 50, "easeOutCirc",
+			$( "body" ).animate( { backgroundColor: CRIMSON }, 300, "easeInBounce" )
+				.animate( { backgroundColor: defaultBackgroundColour }, 100, "easeOutCirc",
 				function() {
 					if( disable )
 					{	// disable for 7s
