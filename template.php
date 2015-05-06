@@ -21,10 +21,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.	
 */
 
-if( ! ( $path = $content[ 'rel_path' ] ) )
-{
-	$path = ! empty( $_GET[ 'path_up' ] ) ? '../' : '';
-}
+$path = ! empty( $content[ 'rel_path' ] ) ? $content[ 'rel_path' ] :
+	( ! empty( $_GET[ 'path_up' ] ) ? '../' : '' );
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -36,8 +35,8 @@ if( ! ( $path = $content[ 'rel_path' ] ) )
 	<link rel="stylesheet" href="<?php echo $path; ?>pure-extract.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" href="<?php echo $path; ?>pwm.css" />
-	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
-	<script type="text/javascript" src="pwm.js"></script>
+	<script type="text/javascript" src="<?php echo $path; ?>jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="<?php echo $path; ?>pwm.js"></script>
 	<link rel="icon" href="<?php echo $path; ?>favicon.ico" />
 	<meta name="description" content="Open source Password Manager web application written in PHP by Owen Maule as a demonstration of competency for a job interview." />
 	<meta name="author" content="Owen Maule" />
@@ -98,7 +97,8 @@ if( ! ( $path = $content[ 'rel_path' ] ) )
 	</footer>
 
 	<script type="text/javascript">
-		var debugToConsole = <?php echo ( 'console' === $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>;
+		var debugToConsole = <?php echo ( 'console' === $content[ 'alert_debug' ] ? 'true' : 'false' ) ?>,
+			appLocation = "<?php echo ! empty( $content[ 'abs_path' ] ) ? $content[ 'abs_path' ] : '' ?>";
 	</script>
 </body>
 </html>
