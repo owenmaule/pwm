@@ -24,6 +24,17 @@
 $path = ! empty( $content[ 'rel_path' ] ) ? $content[ 'rel_path' ] :
 	( ! empty( $_GET[ 'path_up' ] ) ? '../' : '' );
 
+$secretWords = array ( 'flower', 'fruit', 'sun', 'moon', 'sea', 'salt', 'valley', 'water', 'fire',
+	'smoke', 'frog', 'well', 'tea', 'green' );
+$secretWordCount = count( $secretWords );
+$ninjaSecret1 = $secretWords[ mt_rand( 0, $secretWordCount - 1 ) ];
+
+do {
+	$ninjaSecret2 = $secretWords[ mt_rand( 0, $secretWordCount - 1 ) ];
+} while( $ninjaSecret1 == $ninjaSecret2 );
+
+$ninjaSecret = $ninjaSecret1 . '-' . $ninjaSecret2;
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -58,7 +69,7 @@ $path = ! empty( $content[ 'rel_path' ] ) ? $content[ 'rel_path' ] :
 
 		</div>
 		<div class="logo-mount">
-			<img class="logo" src="<?php echo $path; ?>tux-ninja.png" alt="Tux the penguin as a badass ninja" />
+			<img class="logo" src="<?php echo $path; ?>tux-ninja.png" alt="Tux the penguin as a badass ninja" title="<?php echo $ninjaSecret ?>" />
 		</div>
 		<div id="header-overlay">
 			<h1><a href="<?php echo $path; ?>"><span class="app-title" title="Guarding your passwords">PwN <span class="first-part">Pass</span> <span>word</span> Ninja</span></a></h1>
