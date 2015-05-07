@@ -38,7 +38,14 @@ It is possible to route the debug messages to the browser console, with a specia
 	'debug_messages' => 'console',
 </code></pre>
 Please try to solve issues yourself by searching online or asking a friend or colleague, however if you are really stuck you may email me at o@owen-m.com and I will try to offer timely support (no promises).
-7. If you have HTTPS support, <b>first test that it's working by using the application with https:// in the URL</b>. If that's working, you can enable 'enforce_https' in config.php which will give you much needed over-the-wire security for your users' precious password data.
+7. There are three more config.php values that may help in debugging.
+<pre><code>
+	'disable_clipboard' => false,	# ZeroClipboard uses swf which interferes with browser dev tools
+	'debug_layout' => false,		# Applies CSS rules to observe the page layout elements
+	'disable_javascript' => false,	# Runs the site in non-Javascript mode to test graceful degradation ( e.g. NoScript )
+</code></pre>
+Debug layout mode, in as much as it depends on the the CSS file for the site/theme, is still undergoing development.
+8. If you have HTTPS support, <b>first test that it's working by using the application with https:// in the URL</b>. If that's working, you can enable 'enforce_https' in config.php which will give you much needed over-the-wire security for your users' precious password data.
 <pre><code>
 	'enforce_https' => true,
 </code></pre>
@@ -47,8 +54,8 @@ You can also achieve or reinforce this by uncommenting the lines in .htaccess
 	RewriteCond %{HTTPS} !=on
 	RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 </code></pre>
-7. You may wish to tweak the template/theme in file 'template.php'. Please remember to show the copyright notice, licence and GitHub link. You may move them to an 'about' page for example, they don't have to be in the footer. If you modify the code, make sure you include your contact details so your users and myself can contact you to request the source code. Thanks for playing fair and sharing back your changes with the community.
-8. Experts only: If you are going to tweak the encryption settings 'salt_length' and/or 'hash_algo', I suggest you do it before registering accounts, otherwise the passwords will need to be reset. Make sure to also increase the length of the 'user_password' field in the authentication database schema, to accommodate added salt. It will require 2 extra characters per increment of 'salt_length' (bytes), as the salt is stored in hexidecimal. Likewise the length of 'user_password' will need to be adjusted in accordance with a change to 'hash_algo', as passed to the PHP <a href="http://php.net/manual/en/function.hash.php" rel="nofollow" target="_blank">hash()</a> function.
+9. You may wish to tweak the template/theme in file 'template.php'. Please remember to show the copyright notice, licence and GitHub link. You may move them to an 'about' page for example, they don't have to be in the footer. If you modify the code, make sure you include your contact details so your users and myself can contact you to request the source code. Thanks for playing fair and sharing back your changes with the community.
+10. Experts only: If you are going to tweak the encryption settings 'salt_length' and/or 'hash_algo', I suggest you do it before registering accounts, otherwise the passwords will need to be reset. Make sure to also increase the length of the 'user_password' field in the authentication database schema, to accommodate added salt. It will require 2 extra characters per increment of 'salt_length' (bytes), as the salt is stored in hexidecimal. Likewise the length of 'user_password' will need to be adjusted in accordance with a change to 'hash_algo', as passed to the PHP <a href="http://php.net/manual/en/function.hash.php" rel="nofollow" target="_blank">hash()</a> function.
 
 #How to use - Authentication
 
@@ -60,31 +67,36 @@ You can also achieve or reinforce this by uncommenting the lines in .htaccess
 #How to use - Once logged in
 
 1. The menu links near the top are to [Change password] and [Logout]. When you click [Change Password] you will be able to type in a new password and press [Change] to set it. If you change your mind you can press [Cancel] to leave your password as it was.
-2. Usually when logged in, you are on the entry screen. The list box shows the labels for your entries. To create your first entry, fill in the form with label, username, password, URL and notes and press [Create]. The label is the only mandatory field.
-3. You may select an entry in the list by clicking it and pressing [Select]. In Javascript enabled browsers, the [Select] button will be hidden and entries can be viewed simply by clicking in the list. You will then be viewing the entry.
+2. Usually when logged in, you are on the entry screen. The list box shows the labels for your entries. To create your first entry, fill in the form with label, username, password, URL and notes and press [Create]. The label is the only mandatory field. URLs are validated and corrected.
+3. You may select an entry in the list by clicking it and pressing [Select]. In Javascript enabled browsers, the [Select] button is hidden and entries are viewed simply by clicking in the list.
 4. If you are viewing an entry and change the details, press [Edit] to submit them.
-5. When viewing an entry you may press [Delete] to immediately delete the entry. ( There is no confirmation yet. )
-6. If an entry is selected i.e. details are displayed, and you instead wish to create a new one, press [New] to prepare the entry form. You may then fill in the fields as a new entry and press [Create] as in step 2.
-7. When you have many entries, you will find the search feature useful. Type something from the entries you desire into the search box and press [Search]. This will restrict the entries in the list to the matching ones. It searches against all the fields. To show all of your entries again, removing the restriction, press the [X] button nearby.
-
-#Personal message from the author
-
-I hope you find this software useful. I have certainly enjoyed creating it.<br />
-Best wishes, Owen Maule
+5. When viewing an entry and you wish to create a new one, press [New] to prepare the entry form. You may then fill in the fields as a new entry and press [Create] as in step 2.
+6. When viewing an entry you may press [Delete] to immediately delete the entry. In Javascript enabled browsers, you will be prompted to confirm this action.
+7. When viewing an entry you may press \[Show] ( or as appropriate, [Hide] ) to toggle hiding the password field contents. You may also press [Go] to prepare this button to visit the website. You then press the, now labelled [Go!], button again to visit the website. For either the Show/Hide and Go functionality, if you have not first saved the entry with [Update], your changes will mostly be lost, although the link to the website is temporarily retained for the [Go!] button and you can still save the website at that point. Javascript functionality to smooth these features will be added in the near future.
+8. Assuming it is enabled in your pwm install and that you have a Adobe Flash enabled browser, when viewing an entry you may press [Copy] by each of the username, password and website fields to copy these to your clipboard, to easily paste into login forms.
+9. When you have many entries, you will find the search feature useful. Type something from the entries you desire into the search box and press [Search]. This will restrict the entries in the list to the matching ones. It searches against all the fields. To show your complete, unrestricted list of entries again, press the [X] button next to the [Search] button. Searching is another area that will be enhanced with Javascript in the near future.
 
 #Project Roadmap
 This is primarily kept in the header of pwm.php - I will try to keep this README in sync with that.
 
 ##To do
+	Tab-order
 	Encrypt entry data by login password
 	Refactor into class hierarchy: appBase <- authentication <- passwordManager
-	Missing functionality: password confirmation, password generation,
-	    password security analysis, limit failed logins
+	Missing functionality: email field, password confirmation, password generation,
+		password security analysis, limit failed logins, change email address,
+		import/export, browser integration ( plugin to auto-capture credentials )
 	Back-end support: FULLTEXT, SQLlite
+	Internationalisation
 
-##Template (default theme) to do
+##Template ( default theme ) to do
+	Bug: Glitch in transition between highest width mode and middle one
 	Front-end Javascript enhancements
-	Missing client functionality: show/hide password, copy to clipboard, open website
+	CSS improvements ( see pwm.css )
 	Continue searching for the owner of the image and check permission.
-	    ( I expect it's okay, it's Tux and GPL software. )
+		( I expect it's okay, it's Tux and GPL software. )
 
+#Personal message from the author
+
+I hope you find this software useful. I have certainly enjoyed creating it.<br />
+Best wishes, Owen Maule
