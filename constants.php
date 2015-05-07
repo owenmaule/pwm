@@ -31,6 +31,9 @@
 	define( 'TIME_FORMAT', 'l jS \of F Y h:i:s A' );
 	define( 'TOKEN_DELIM', '-' );
 
+	define( 'ERROR_NO_WEBSITE', 'Must specify a website address e.g. http://twitter.com' );
+	define( 'ERROR_UNSAVED_ENTRY', 'Entry was changed but not saved' );
+
 	define( 'ALERT_ERROR', 'error' );
 	define( 'ALERT_NOTE', 'notice' );
 	define( 'ALERT_DENY', 'denied' );
@@ -47,3 +50,6 @@
 	define( 'ENTRY_CREATE', 'Create' );
 	define( 'ENTRY_UPDATE', 'Update' );
 	define( 'ENTRY_DELETE', 'Delete' );
+	define( 'ENTRY_SHOW', 'Show' );
+	define( 'ENTRY_HIDE', 'Hide' );
+	define( 'ENTRY_GO', 'Go' );
