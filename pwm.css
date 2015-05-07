@@ -213,7 +213,8 @@ div.textinput-bar { /* includes text input, cancel out top */
 	padding-top: 2px;
 }
 
-input[type=submit] {
+input[type=submit],
+input[type=button] {
 	margin: 0 4px 4px 0;
 	padding: 6.5px;
 	position: relative;
@@ -327,11 +328,12 @@ form#entry-form input[type=password] {
 /* Without Javascript enabled, the 2 button becomes 1 and the 1 becomes 0 - take off the Copy button
 Button 1 is always the Copy */
 
-.compress-field input[type=submit] {
+.compress-field input[type=button] {
 	display: none;
 }
 
 .js-enable .compress-field input[type=submit],
+.js-enable .compress-field input[type=button],
 .compress-field input[type=submit].button2 {
 	display: block;
 	position: absolute;
@@ -341,7 +343,8 @@ Button 1 is always the Copy */
 	width: 60px;
 }
 
-.js-enable .compress-field input[type=submit].button2 {
+.js-enable .compress-field input[type=submit].button2,
+.js-enable .compress-field input[type=button].button2 {
 	right: 64px;
 }
 
