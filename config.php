@@ -21,7 +21,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
 */
 
-$config = array(
+$config = array (
+	# Database
 	'dsn' => 'mysql:host=localhost;dbname=pwm;charset=utf8',
 	'db_user' => 'pwm',
 	'db_password' => 'YOUR_PASSWORD',
@@ -29,15 +30,21 @@ $config = array(
 	'db_pwm_table' => '`entries`',
 	'auto_install' => true,
 
-	'admin_email' => 'YOUR_EMAIL',
-	'app_location' => 'http://YOUR_SITE/pwm/',
+	# Site
+	'admin_email' => 'YOU@YOUR_DOMAIN.TLD',
+	'app_location' => 'http://YOUR_DOMAIN.TLD/PATH_TO_PWM/',
+	'enforce_https' => false,		# if supported in your environment, set to true
 
-	'enforce_https' => false,
-	'debug_messages' => false,
+	# Debugging
+	'debug_messages' => false,		# can set to 'console' to route to browser console
+	'disable_clipboard' => false,	# ZeroClipboard uses swf which interferes with browser dev tools
+	'debug_layout' => false,		# Applies CSS rules to observe the page layout elements
+	'disable_javascript' => false,	# Runs the site in non-Javascript mode to test graceful degradation ( e.g. NoScript )
+
+	# Security ( You can probably ignore these, the defaults should be fine )
 	'salt_length' => 12,
 	'hash_algo' => 'sha256',
-
-	'reset_token_timeout' => 3600,
+	'reset_token_timeout' => 3600,	# 1 hour
 	'limit_fails' => 10,
-	'limit_fails_timer' => 600,
+	'limit_fails_timer' => 600,		# 10 minutes
 );
