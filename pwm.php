@@ -22,19 +22,22 @@
 
 	---
 	To do:
-	Encrypt entry data by login password
-	Refactor into class hierarchy: appBase <- authentication <- passwordManager
-	Missing functionality: password confirmation, password generation,
-		password security analysis, limit failed logins, change email address,
-		import/export, browser integration ( plugin to auto-capture credentials )
-	Back-end support: FULLTEXT, SQLlite
+		Debug new functionality: show/hide password, open website
+		Tab-order
+		Encrypt entry data by login password
+		Refactor into class hierarchy: appBase <- authentication <- passwordManager
+		Missing functionality: password confirmation, password generation,
+			password security analysis, limit failed logins, change email address,
+			import/export, browser integration ( plugin to auto-capture credentials )
+		Back-end support: FULLTEXT, SQLlite
+		Internationalisation
 
 	Template ( default theme ) to do:
-	Front-end Javascript enhancements
-	Missing client functionality: show/hide password, copy to clipboard, open website
-	CSS improvements ( see pwm.css )
-	Continue searching for the owner of the image and check permission.
-		( I expect it's okay, it's Tux and GPL software. )
+		Bug: Glitch in transition between highest width mode and middle one
+		Front-end Javascript enhancements
+		CSS improvements ( see pwm.css )
+		Continue searching for the owner of the image and check permission.
+			( I expect it's okay, it's Tux and GPL software. )
 */
 
 require_once 'constants.php';
@@ -59,8 +62,10 @@ class pwm
 
 	private $pwmTable = '';
 	private $selected = 0;
-	public $entries = array ( );
+	private $showPassword = false;
+	private $urlLink = '';
 	public $fields = array ( 'entry_id', 'label', 'username', 'password', 'url', 'notes' );
+	public $entries = array ( );
 	public $entry = array ( );
 
 	public function __construct()
@@ -342,9 +347,15 @@ CREATE TABLE `pwm`.`entries` (
 		# strip salt - 2 bytes hex per byte binary
 		$hexSalt = substr( $saltHash, 0, $this->config[ 'salt_length' ] * 2 );
 		# PHP 5.4 has hex2bin()
-		$salt = pack( 'H*', $hexSalt );
-#		$this->alert( 'Strip salt hex= ' . $hexSalt . ' bin= ' . $salt, ALERT_DEBUG );
-		return $this->password_hash( $password, $salt ) == $saltHash;
+		$passwordHash = $this->password_hash( $password, pack( 'H*', $hexSalt ) );
+		$match = ( $passwordHash == $saltHash );
+		if( ! $match )
+		{
+			$this->alert( 'Stripped hexSalt= ' . $hexSalt . ' (' . strlen( $hexSalt ) . ')', ALERT_DEBUG );
+			$this->alert( 'passwordHash= ' . $passwordHash . BR
+				. 'saltHash= ' . $saltHash, ALERT_DEBUG );
+		}
+		return $match;
 	}
 	
 
@@ -887,6 +898,76 @@ CREATE TABLE `pwm`.`entries` (
 	
 	/* Password manager */
 	
+	public function validURL( &$url )
+	{
+		if( ! is_string( $url ) )
+		{
+			$this->alert( 'validURL(): Not even a string', ALERT_ERROR );
+			return false;
+		}
+		if( empty( $url ) )
+		{
+			$this->alert( ERROR_NO_WEBSITE, ALERT_DENY );
+			return false;			
+		}
+		# Maybe we shouldn't strtolower is?
+		$urlParts = parse_url( strtolower( $url ) );
+		if( false === $urlParts )
+		{
+			$this->alert( 'Seriously malformed URL', ALERT_DENY );
+			return false;
+		}
+		
+		if( empty( $urlParts[ 'host' ] ) && empty( $urlParts[ 'path' ] ) )
+		{
+			$this->alert( ERROR_NO_WEBSITE, ALERT_DENY );
+			$this->alert( 'urlParts=' . var_export( $urlParts, true ), ALERT_DEBUG );
+			return false;
+		}
+		if( empty( $urlParts[ 'host' ] ) )
+		{
+			# It's all in path
+			if( false === strpos( $urlParts[ 'path' ], '.' ) )
+			{	# We need a Top Level Domain, we can supply a default for the lazy
+				$urlParts[ 'path' ] .= '.com';
+			}
+		}
+		if( empty( $urlParts[ 'path' ] ) )
+		{
+			# It's all in host
+			if( false === strpos( $urlParts[ 'host' ], '.' ) )
+			{
+				# We need a Top Level Domain, we can supply a default for the lazy
+				$urlParts[ 'host' ] .= '.com';
+			}
+		}
+		if( empty( $urlParts[ 'scheme' ] ) )
+		{
+			# We need a scheme, we can supply that for the lazy
+			$urlParts[ 'scheme' ] = 'http';
+		}
+
+		# Pass back by reference
+		# http_build_url() requires PECL pecl_http >= 0.21.0
+		$url = $this->http_build_url( '', $urlParts );
+#		$this->alert( 'Click [Go!] again to open ' . htmlspecialchars( $url ), ALERT_NOTE );
+		$this->alert( 'Constructed URL ' . $url, ALERT_DEBUG );
+		return true;
+	}
+	
+	public function http_build_url( $ignoredURL, $urlParts )
+	{
+		return ( isset( $urlParts[ 'scheme' ] ) ? $urlParts[ 'scheme' ] . '://' : '' )
+			. ( isset( $urlParts[ 'host' ] ) ? $urlParts[ 'host' ] : '' )
+			. ( isset( $urlParts[ 'port' ] ) ? ':' . $urlParts[ 'port' ] : '' )
+			. ( isset( $urlParts[ 'user' ] ) ? $urlParts[ 'user' ] : '' )
+			. ( isset( $urlParts[ 'pass' ] ) ? ':' . $urlParts[ 'pass' ]  : '' )
+			. ( ( ! empty( $urlParts[ 'user' ] ) || ! empty( $urlParts[ 'pass' ] ) ) ? '@' : '' )
+			. ( isset( $urlParts[ 'path' ] ) ? $urlParts[ 'path' ] : '' )
+			. ( isset( $urlParts[ 'query' ] ) ? '?' . $urlParts[ 'query' ] : '' )
+			. ( isset( $urlParts[ 'fragment' ] ) ? '#' . $urlParts[ 'fragment' ] : '' );
+	}
+	
 	public function loadEntries( $search = '' )
 	{
 		# To do: InnoDB fulltext index ( Requires MySQL 5.6+ )
@@ -967,8 +1048,54 @@ CREATE TABLE `pwm`.`entries` (
 		return $entryCopy;
 	}
 	
+	public function entryChanged( &$entry )
+	{
+		if( empty( $entry[ 'entry_id' ] ) )
+		{
+			$this->alert( 'entryChanged(): entry has no entry_id', ALERT_DEBUG );
+			return true;
+		}
+
+		$fields = $this->fields;
+		if( ! is_array( $fields ) )
+		{
+			throw new Exception( 'entryChanged(): fields is not an array' );
+		}
+
+		if( ! $this->loadEntry( $entry[ 'entry_id' ] ) )
+		{
+			$this->alert( 'entryChanged(): failed to load entry', ALERT_DEBUG );
+			return true;
+		}
+
+		foreach( $fields as $field )
+		{
+			if( ! isset( $entry[ $field ] ) )
+			{
+				$this->alert( 'entryChanged(): entry is missing field(s)', ALERT_DEBUG );
+				return true;
+			}
+
+			if( ! isset( $entry[ $field ] ) )
+			{
+				$this->alert( 'entryChanged(): entry from loadEntry() is missing field(s)', ALERT_DEBUG );
+				return true;
+			}			
+
+			if( $this->entry[ $field ] != $entry[ $field ] )
+			{
+				# Entry was changed
+				return true;
+			}
+		}
+
+		# Entry matches database
+		return false;
+	}
+	
 	public function loadEntry( $selected )
 	{
+		$selected = (int) $selected;
 		if( ! $selected || ! $this->entryIsMine( $selected ) )
 		{
 			return false;
@@ -996,7 +1123,26 @@ CREATE TABLE `pwm`.`entries` (
 			$this->alert( 'Entries must have a label', ALERT_DENY );
 			return false;
 		}
+		
+		if( ! empty( $entry[ 'url' ] ) )
+		{
+			# Validate it
+			$checkURL = $entry[ 'url' ];
+			if( $this->validURL( $checkURL ) )
+			{
+				if( $checkURL != $entry[ 'url' ] )
+				{
+					$this->alert( 'Your website was adjusted to ' . htmlspecialchars( $checkURL ), ALERT_NOTE );
+					$entry[ 'url' ] = $checkURL;
+					$this->alert( 'Set entry to ' . htmlspecialchars( $entry[ 'url' ] ), ALERT_DEBUG );
+				}
+			} else {
+				# I guess we have to save their nonsense
+				$this->alert( 'Saving invalid URL ' . htmlspecialchars( $entry[ 'url' ] ), ALERT_DEBUG );
+			}
+		}
 
+		$this->alert( 'Entry to save ' . htmlspecialchars( $entry[ 'url' ] ), ALERT_DEBUG );
 		if( empty( $entry[ 'entry_id' ] ) )
 		{
 			# Insert entry
@@ -1054,10 +1200,11 @@ CREATE TABLE `pwm`.`entries` (
 				return false;
 			}
 
+			$entry_id = $entry[ 'entry_id' ] = (int) $entry[ 'entry_id' ];
 			switch( $_POST[ 'edit' ] )
 			{
 				case ENTRY_CREATE:
-					if( $entry[ 'entry_id' ] )
+					if( $entry_id )
 					{
 						$this->alert( 'Entry ID should not be specified when creating', ALERT_ERROR );
 					}
@@ -1070,11 +1217,62 @@ CREATE TABLE `pwm`.`entries` (
 					break;
 
 				case ENTRY_DELETE:
-					if( ! $this->deleteEntry( $entry[ 'entry_id' ] ) )
+					if( ! $this->deleteEntry( $entry_id ) )
 					{
 						return false;
 					}
 					$this->selected = 0;
+					break;
+
+				case ENTRY_SHOW:
+					if( $entry_id && $this->entryChanged( $entry ) )
+					{
+						$this->alert( ERROR_UNSAVED_ENTRY, ALERT_ERROR );
+					}
+					$_SESSION[ 'show_password' ] = $this->showPassword = true;
+					break;
+
+				case ENTRY_HIDE:
+					if( $entry_id && $this->entryChanged( $entry ) )
+					{
+						$this->alert( ERROR_UNSAVED_ENTRY, ALERT_ERROR );
+					}
+					$_SESSION[ 'show_password' ] = $this->showPassword = false;
+					break;
+
+				case ENTRY_GO:
+					# Check the database incase they changed it
+					if( empty( $entry[ 'url' ] ) )
+					{
+						$this->alert( ERROR_NO_WEBSITE, ALERT_ERROR );
+					} else
+					{
+						if( $entry_id && $this->entryChanged( $entry ) )
+						{
+							$this->alert( ERROR_UNSAVED_ENTRY, ALERT_ERROR );
+						}
+						/*
+						$urlChanged = $entry[ 'entry_id' ]
+								&& $this->loadEntry( $entry[ 'entry_id' ] )
+								&& ! empty( $this->entry[ 'url' ] )
+								&& ( $this->entry[ 'url' ] != $entry[ 'url' ] );
+
+						if( $urlChanged )
+						{
+							$this->alert( ERROR_UNSAVED_ENTRY, ALERT_ERROR );
+							$this->alert( 'database url=' . htmlspecialchars( $this->entry[ 'url' ] ) . BR
+								. 'rest url=' . htmlspecialchars( $entry[ 'url' ] ), ALERT_DEBUG );
+						}
+						*/
+						if( $this->validURL( $entry[ 'url' ] ) )
+						{
+							$this->alert( 'Click [Go!] to open ' . htmlspecialchars( $entry[ 'url' ] ),
+								ALERT_NOTE );
+							# Populate text box with new one, so it visually matches ?
+							$this->entry[ 'url' ] = $entry[ 'url' ];
+							$this->urlLink = $entry[ 'url' ];
+						}
+					}
 					break;
 
 				default:
@@ -1137,11 +1335,13 @@ CREATE TABLE `pwm`.`entries` (
 		$this->alert( 'Search: ' . htmlspecialchars( $search ) . ' Selected: '
 			. (int) $this->selected, ALERT_DEBUG );
 
+		# Could optimise to check if already loaded, but will load it twice if necessary
 		if( $newEntry || ! $this->loadEntry( $this->selected ) )
 		{
 			$this->selected = 0;
 			$newEntry = true;
 			$this->entry = array_fill_keys( $this->fields, '' );
+			$this->alert( 'New entry', ALERT_DEBUG );
 		}
 		$_SESSION[ 'selected' ] = $this->selected;
 
@@ -1183,6 +1383,25 @@ CREATE TABLE `pwm`.`entries` (
 		URL - Copy to clipboard / Open site
 		Notes
 		*/
+		
+		if( ! isset( $_SESSION[ 'show_password' ] ) )
+		{
+			$_SESSION[ 'show_password' ] = false;
+		} else {
+			$this->showPassword = $_SESSION[ 'show_password' ];
+		}
+		
+		if( $this->urlLink
+			&& $this->entry[ 'url' ] != $this->urlLink )
+		{
+			# This is not the database saved data, this was handled previously in 'case ENTRY_GO'
+			$this->entry[ 'url' ] = $this->urlLink;
+		}
+
+		$goButton = ( $this->urlLink
+			? '<a href="' . $this->urlLink . '" target="_blank"><input type="button" value="' . ENTRY_GO . '!" class="button2" /></a>'
+			: '<input type="submit" name="edit" value="' . ENTRY_GO . '" class="button2" />' );
+		
 		$main .= 
 '			</select>
 			<div id="selector-buttons" class="button-bar">
@@ -1199,26 +1418,28 @@ CREATE TABLE `pwm`.`entries` (
 					. $this->entry[ 'label' ] . '" autocomplete="off" />
 				</span>
 			<label for="username">Username: </label><span class="compress-field">
-				<input type="submit" value="Copy" />
+				<input type="button" value="Copy" />
 				<input type="text" id="username" name="username" value="'
 					. $this->entry[ 'username' ] . '" autocomplete="off" />
 				</span>
 			<label for="password">Password: </label><span class="compress-field two-button">
-				<input type="submit" value="Copy" /><input type="submit" value="Show" class="button2" />
-				<input type="password" id="password" name="password" value="'
+				<input type="button" value="Copy" /><input type="submit" name="edit" value="'
+					. ( $this->showPassword ? ENTRY_HIDE : ENTRY_SHOW ) . '" class="button2" />
+				<input type="' . ( $this->showPassword ? 'text' : 'password' )
+					. '" id="password" name="password" value="'
 					. $this->entry[ 'password' ] . '" autocomplete="off" />
 				</span>
-			<label for="url">Web address: </label><span class="compress-field two-button">
-				<input type="submit" value="Copy" /><input type="submit" value="Go" class="button2" />
-				<input type="text" id="url" name="url" value="'
-					. $this->entry[ 'url' ] . '" autocomplete="off" />
+			<label for="url">Website: </label><span class="compress-field two-button">
+				<input type="button" value="Copy" />' . $goButton . '
+				<input type="text" id="url" name="url" value="' 
+					. $this->entry[ 'url' ] . '" autocomplete="off"' . ( $this->urlLink ? ' readonly="readonly"' : '' ) . ' />
 				</span>
 			<label for="notes" class="textarea-label">Notes: </label><br />
 			<textarea id="notes" name="notes">' . $this->entry[ 'notes' ] . '</textarea>
 			<div class="button-bar">
 				<input type="submit" name="edit" value="' . ( $newEntry ? ENTRY_CREATE : ENTRY_UPDATE )
 				. '" />
-				<input type="submit" name="edit" value="' . ENTRY_DELETE . '" />
+				<input type="submit" name="edit" value="' . ENTRY_DELETE . '"' . ( $newEntry ? ' style="display: none"' : '' ) . ' />
 			</div>
 		</form>';
 
