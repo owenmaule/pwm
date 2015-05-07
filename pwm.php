@@ -22,11 +22,10 @@
 
 	---
 	To do:
-		Debug new functionality: show/hide password, open website
 		Tab-order
 		Encrypt entry data by login password
 		Refactor into class hierarchy: appBase <- authentication <- passwordManager
-		Missing functionality: password confirmation, password generation,
+		Missing functionality: email field, password confirmation, password generation,
 			password security analysis, limit failed logins, change email address,
 			import/export, browser integration ( plugin to auto-capture credentials )
 		Back-end support: FULLTEXT, SQLlite
@@ -142,7 +141,7 @@ class pwm
 CREATE TABLE `pwm`.`users` (
 `user_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `user_email` VARCHAR( 128 ) NOT NULL ,
-`user_password` VARCHAR( 88 ) NOT NULL
+`user_password` CHAR( 88 ) NOT NULL
 ) ENGINE = InnoDB;
 
 CREATE TABLE `pwm`.`entries` (
@@ -160,7 +159,7 @@ CREATE TABLE `pwm`.`entries` (
 		if( true !== ( $errorMessage = $this->checkCreateTable( 'db_auth_table', '(
 `user_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `user_email` VARCHAR( 128 ) NOT NULL ,
-`user_password` VARCHAR( 88 ) NOT NULL
+`user_password` CHAR( 88 ) NOT NULL
 ) ENGINE = InnoDB' ) ) )
 		{
 			return $errorMessage;
