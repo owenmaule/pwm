@@ -53,11 +53,11 @@
 	<link rel="stylesheet" href="<?php echo $path; ?>pwm.css" />
 	<?php echo ! $javascriptDisabled ?
 	'<script type="text/javascript" src="' . $path . 'jquery-1.11.3.min.js"></script>
-	<script type="text/javascript" src="' . $path . 'jquery-ui.easing.min.js"></script>
-	' . ( ! empty( $content[ 'enable_clipboard' ] )
-		? '<script type="text/javascript" src="' . $path . 'jquery.zeroclipboard.min.js"></script>
-' : '' ) .
-'	<script type="text/javascript" src="' . $path . 'pwm.js"></script>'
+	<script type="text/javascript" src="' . $path . 'jquery-ui.easing.min.js"></script>'
+	. ( empty( $content[ 'disable_clipboard' ] )
+		? '
+	<script type="text/javascript" src="' . $path . 'jquery.zeroclipboard.min.js"></script>' : '' ) . '
+	<script type="text/javascript" src="' . $path . 'pwm.js"></script>'
 	: $javascriptDisabled ?>
 
 	<link rel="icon" href="<?php echo $path; ?>favicon.ico" />
