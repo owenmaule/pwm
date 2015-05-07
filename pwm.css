@@ -357,6 +357,10 @@ Button 1 is always the Copy */
 	min-width: 264px;
 }
 
+.js-enable .compress-field.zero-button {
+	padding-right: 0;
+}
+
 .js-enable .compress-field.two-button {
 	padding-right: 128px;
 }
