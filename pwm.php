@@ -1194,7 +1194,7 @@ CREATE TABLE `pwm`.`entries` (
 		<form id="entry-form" action="' . $this->content[ 'rel_path' ]
 			. 'edit" method="post" class="pure-form">
 			<input type="hidden" name="entry_id" value="' . $this->selected . '" />
-			<label for="label">Label: </label><span class="compress-field">
+			<label for="label">Label: </label><span class="compress-field zero-button">
 				<input type="text" id="label" name="label" value="'
 					. $this->entry[ 'label' ] . '" autocomplete="off" />
 				</span>
