@@ -26,7 +26,8 @@ $( function() {
 	if( debugToConsole )
 	{	// Transfer debug alerts to console
 		$( "#alert .alert-debug" ).each( function() {
-			console.log( 'debug: ' + $( this ).html() );
+			// Replace <br /> with \n
+			console.log( 'debug: ' + $( this ).html().replace( /<br\s*\/?>/mg, "\n" ) );
 			$( this ).hide();
 		} );
 	}
@@ -42,6 +43,11 @@ $( function() {
 		location.href = appLocation + 'entry/' + $( this ).val();
 	} );
 	$( "#select-entry" ).hide();
+
+	// Delete confirmation
+	$( "#entry-form input[type=submit][value='Delete']" ).click( function() {
+		return confirm( "Are you sure you want to delete " + $( "#label" ).val() + "?" );
+	} );
 	
 	// Enable the extra buttons
 	$( "body" ).addClass( "js-enable" );
@@ -49,17 +55,17 @@ $( function() {
 	// ZeroClipboard
 	if( enableClipboard )
 	{
-		$( "body" ).on( "copy", "#entry-form input[type=text], #entry-form input[type=password]", function( e )
+		$( "body" ).on( "copy", "#entry-form input[type=button][value='Copy']", function( e )
 		{
-			var textToCopy = $( this ).val();
+			var textToCopy = $( this ).parent().find( "input[type=text], input[type=password]" ).val();
 
 			if( textToCopy )
 			{
 				console.log( 'Clipboard copy: ' + textToCopy );
-
 				e.clipboardData.setData( "text/plain", textToCopy );
-				e.preventDefault();
 			}
+			e.preventDefault();
+			return true;
 		} );
 	}
 
